@@ -353,10 +353,18 @@ function init()
     
     mainObject.calcRadius = function ()
     {
-        var box = new THREE.Box3().setFromObject(this)
+        /*
+        //this.computeBoundingBox()
+        const box = this.boundingBox()
+
+        //var box = new THREE.Box3().setFromObject(this)
         var r = box.getBoundingSphere().radius
         this.radius = r
         return r
+        */
+       this.radius = 1000
+
+        return this.radius
     }
 
     /*
