@@ -403,7 +403,8 @@ function init()
     //loader.load('models/carrier.obj', 'models/carrier.mtl', 
     //loader.load('models/maze.obj', 'models/maze.mtl', 
     //loader.load('models/GOD.obj', 'models/GOD.mtl', 
-    loader.load('models/Recognizer.obj', 'models/Recognizer.mtl', 
+    loader.load('models/Recognizer.obj', 'models/Recognizer.mtl');
+
     //loader.load('models/Hg_carrier.obj', "models/Hg_carrier.mtl",
     //loader.load('models/hiigaran-bomber.obj', "models/hiigaran-bomber.mtl",
     
@@ -412,8 +413,11 @@ function init()
     // loader.load('models/TankScene.obj', 'models/TankScene.mtl', 
     //loader.load('models/stealth-ucav-new-disegn.obj', 'models/stealth-ucav-new-disegn.mtl', 
     //loader.load('models/Lockheed-SR-71B-1.obj', 'models/Lockheed-SR-71B-1.mtl',             
-    //loader.load('models/Stealth.obj', 'models/Stealth.mtl',             
-        function ( object ) {
+    //loader.load('models/Stealth.obj', 'models/Stealth.mtl',      
+    loader.addEventListener( 'load', finishedObjLoad );
+       
+    function finishedObjLoad( event ) {
+            const object = event.content
             console.log("loaded")
             // Object_castShadow(object)
             //Object_makeDoubleSided(object)
@@ -469,8 +473,8 @@ function init()
             mainObject.scale.set(s,s,s)
             console.log("carrier loaded radius: ", mainObject.radius)
         }
-    );
 
+        
 {
         var floorGeometry = new THREE.CubeGeometry(100000,.5,100000);
     //var floorMaterial = new THREE.MeshLambertMaterial({ color: 0x3d518b });
