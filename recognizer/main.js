@@ -318,7 +318,7 @@ function init()
 
 
     scene = new THREE.Scene();
-    scene.fog = new THREE.Fog( 0x000000, .1, 10000);
+    //scene.fog = new THREE.Fog( 0x000000, .1, 10000);
 
     //controls = new THREE.OrbitControls( camera );
     //controls.addEventListener( 'change', render );
@@ -330,21 +330,6 @@ function init()
     carrier = null
     carrierSpotlight = SpotLight_new()
     mainObject = null
-/*
-    carrier = null
-    var loader = new THREE.ColladaLoader();
-    loader.load('./models/carrier.dae', function (result) {
-        scene.add(result.scene);
-        carrier = result.scene
-        carrier.rotation.x = -3.14159/2
-        carrier.maxz = 5500
-        carrier.minz = -1500
-        carrier.position.set(0,300,carrier.minz);
-        var s = 0.01
-        carrier.scale.set(s, s, s );
-        carrierSpotlight.target = carrier
-    });
-    */
     
     mainObject = new THREE.Object3D();
     mainObject.position.set(0,52,0)
@@ -362,7 +347,7 @@ function init()
         this.radius = r
         return r
         */
-       this.radius = 1000
+       this.radius = 100
 
         return this.radius
     }
@@ -377,15 +362,14 @@ function init()
     */
     
         carrierSpotlight.target = mainObject
-        // recognizerSpotlight.target = mainObject
 
-/*
+
     {
-        //var geometry = new THREE.CubeGeometry(100,100,100);
+        var geometry = new THREE.CubeGeometry(100,100,100);
         //var geometry = new THREE.IcosahedronGeometry(100, 0)
         //var geometry = new THREE.OctahedronGeometry(100, 0)
         //var geometry = new THREE.TetrahedronGeometry(100, 0)
-        var geometry = new THREE.DodecahedronGeometry(100, 0)
+        //var geometry = new THREE.DodecahedronGeometry(100, 0)
 
         var material = new THREE.MeshPhongMaterial( { ambient: 0x111111, color: 0xdddddd, specular: 0x333300, shininess: 30, shading: THREE.FlatShading } ) 
 
@@ -400,28 +384,14 @@ function init()
         objectOutline.scale.set(s, s, s)
         //mainObject.add( objectOutline );
         carrierSpotlight.target = object
-        //recognizerSpotlight.target = object
     }
-    */
+    
 
     console.log("loading...")
     
     var loader = new THREE.OBJMTLLoader();
     //var loader = new THREE.ObjectLoader();
-    //loader.load('models/carrier.obj', 'models/carrier.mtl', 
-    //loader.load('models/maze.obj', 'models/maze.mtl', 
-    //loader.load('models/GOD.obj', 'models/GOD.mtl', 
-    loader.load('models/Recognizer.obj', 'models/Recognizer.mtl');
-
-    //loader.load('models/Hg_carrier.obj', "models/Hg_carrier.mtl",
-    //loader.load('models/hiigaran-bomber.obj', "models/hiigaran-bomber.mtl",
-    
-    //loader.load('models/ship.obj', 'models/ship.mtl', 
-    //loader.load('models/jet.obj', 'models/jet.mtl', 
-    // loader.load('models/TankScene.obj', 'models/TankScene.mtl', 
-    //loader.load('models/stealth-ucav-new-disegn.obj', 'models/stealth-ucav-new-disegn.mtl', 
-    //loader.load('models/Lockheed-SR-71B-1.obj', 'models/Lockheed-SR-71B-1.mtl',             
-    //loader.load('models/Stealth.obj', 'models/Stealth.mtl',      
+    loader.load('models/Recognizer.obj', 'models/Recognizer.mtl');    
     loader.addEventListener( 'load', finishedObjLoad );
        
     function finishedObjLoad( event ) {
@@ -438,7 +408,7 @@ function init()
             carrier.add(object)
             
             //var s = 1/10
-        //    carrier.scale.set(s, s, s)
+            //carrier.scale.set(s, s, s)
             
             carrierOutline = Object_asLineObject(object, 0xff6600, 3, 1)
             //var s = 1.001
@@ -468,7 +438,6 @@ function init()
             mainObject.add( carrier );
             
             carrierSpotlight.target = carrier
-            //recognizerSpotlight.target = carrier
             
             carrier.maxz = 1500
             carrier.minz = -1500
@@ -484,7 +453,7 @@ function init()
 
         
 {
-        var floorGeometry = new THREE.CubeGeometry(100000,.5,100000);
+    var floorGeometry = new THREE.CubeGeometry(100000,.5,100000);
     //var floorMaterial = new THREE.MeshLambertMaterial({ color: 0x3d518b });
     //var floor = new THREE.Mesh(floorGeometry, floorMaterial);
 
@@ -538,8 +507,7 @@ function init()
 };
 
 
-function render() 
-{
+function render() {
     if (mainObject)
     {
         time ++
@@ -565,21 +533,18 @@ function render()
     renderer.render(scene, camera);
 }
 
-function Object_randomizePos(obj)
-{
+function Object_randomizePos(obj){
     obj.position.x = 2000*(Math.random() - 0.5)
     obj.position.y = 2000*(Math.random() - 0.0) + 5
     obj.position.z = 1000*(Math.random() - 0.5)    
 }
 
-function animate() 
-{
+function animate() {
     requestAnimationFrame( animate );
     render();
 }
 
-function onWindowResize() 
-{
+function onWindowResize() {
     var f = 1
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
