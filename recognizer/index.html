@@ -2,30 +2,26 @@
 <!DOCTYPE html>
 <html lang ="en">
 <head>
-<title>  </title>
-<meta charset ="utf-8">
-<meta name ="viewport" content ="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-<style>
-body {
-    color: #ffffff;
-    font-family:Monospace;
-    font-size:13px;
-    text-align:center;
-    font-weight: bold;
+  <title></title>
+  <meta charset ="utf-8">
+  <meta name ="viewport" content ="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <style>
+  body {
+      color: #ffffff;
+      font-family:Monospace;
+      font-size:13px;
+      text-align:center;
+      font-weight: bold;
 
-    background-color: #fff;
-    margin: 0px;
-    overflow: hidden;
+      background-color: #fff;
+      margin: 0px;
+      overflow: hidden;
 
-    -webkit-filter: blur(1px); 
-    filter: blur(1px);
-}
-</style>
+      -webkit-filter: blur(1px); 
+      filter: blur(1px);
+  }
+  </style>
 </head>
-
-<!--
-    python -m SimpleHTTPServer
--->
 
 <body>
 <div id ="container"> </div>
@@ -36,6 +32,73 @@ body {
 <script src ="Object-extras.js"> </script>
 <script src ="main.js"> </script>
 
+<script>
+
+class BaseObject {
+  static shared() {
+      if (!this._shared) {
+          this._shared = this.clone()
+      }
+      return this._shared
+  }
+
+  type() {
+      return this.constructor.name
+  }
+
+  static clone() {
+      const obj = new this()
+      obj.init()
+      return obj
+  }
+
+  init() {
+      // subclasses should override to initialize
+  }
+
+  newSlot(slotName, initialValue) {
+      if (typeof(slotName) !== "string") {
+          throw new Error("slot name must be a string"); 
+      }
+
+      if (initialValue === undefined) { 
+          initialValue = null 
+      };
+
+      const privateName = "_" + slotName;
+      this[privateName] = initialValue;
+
+      if (!this[slotName]) {
+          this[slotName] = function () {
+              return this[privateName];
+          }
+      }
+
+      const setterName = "set" + slotName.capitalized()
+
+      if (!this[setterName]) {
+          this[setterName] = function (newValue) {
+              this[privateName] = newValue;
+              //this.updateSlot(slotName, privateName, newValue);
+              return this;
+          }
+      }
+
+      return this;
+  }
+}
+
+/*
+class Test extends ObjectBase {
+  init() {
+      super.init()
+      this.newSlot("fullPath", null);
+      // subclasses should override to initialize
+  }
+}
+*/
+
+</script>
 
 <!--
 <embed id=music src="./music/01 Things to Come.mp3" width="0" height="0" loop="true" autostart="true" hidden="true" />

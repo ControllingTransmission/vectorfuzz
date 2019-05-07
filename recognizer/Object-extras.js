@@ -1,68 +1,9 @@
 
-/*
-class BaseObject {
-
-    static shared() {
-        if (!this._shared) {
-            this._shared = this.clone()
-        }
-        return this._shared
-    }
-
-    type() {
-        return this.constructor.name
-    }
-
-    static clone() {
-        const obj = new this()
-        obj.init()
-        return obj
-    }
-    
-    init() {
-        // subclasses should override to initialize
-    }
-
-    newSlot(slotName, initialValue) {
-        if (typeof(slotName) !== "string") {
-            throw new Error("slot name must be a string"); 
-        }
-
-        if (initialValue === undefined) { 
-            initialValue = null 
-        };
-
-        const privateName = "_" + slotName;
-        this[privateName] = initialValue;
-
-        if (!this[slotName]) {
-            this[slotName] = function () {
-                return this[privateName];
-            }
-        }
-
-        const setterName = "set" + slotName.capitalized()
-
-        if (!this[setterName]) {
-            this[setterName] = function (newValue) {
-                this[privateName] = newValue;
-                //this.updateSlot(slotName, privateName, newValue);
-                return this;
-            }
-        }
-
-        return this;
-    }
+THREE.Vector3.prototype.roughlyEquals = function(v2) {
+    const v1 = this
+    const d = 0.001
+    return Math.abs(v1.x - v2.x) < d && Math.abs(v1.y - v2.y) < d && Math.abs(v1.z - v2.z) < d  
 }
-
-class Test extends ObjectBase {
-    init() {
-        super.init()
-        this.newSlot("fullPath", null);
-        // subclasses should override to initialize
-    }
-}
-*/
 
 const Obj3d = THREE.Object3D.prototype
 
@@ -89,11 +30,7 @@ Obj3d.makeCastShadow = function() {
 }
 
 
-function Vector3_equals(v1, v2) {
-    //return v1.x == v2.x && v1.y == v2.y && v1.z == v2.z;
-    const d = 0.001
-    return Math.abs(v1.x - v2.x) < d && Math.abs(v1.y - v2.y) < d && Math.abs(v1.z - v2.z) < d
-}
+
 
 function LinePieces_hasSharedVerts(vertices, v1, v2, ignoreIndex) {  
     let count = 0
@@ -107,26 +44,23 @@ function LinePieces_hasSharedVerts(vertices, v1, v2, ignoreIndex) {
         const l1 = vertices[i]
         const l2 = vertices[i+1]
         
-        //if (l1.equals(v1) && l2.equals(v2)) 
-        if (Vector3_equals(l1, v1) && Vector3_equals(l2, v2)) { 
-                //console.log("match points of line ",  i/2)
-
-            if (Vector3_equals(v1.face.normal, l1.face.normal)) {
+        if (l1.roughlyEquals(v1) && l2.roughlyEquals(v2)) {
+            //console.log("match points of line ",  i/2)
+            if (v1.face.normal.roughlyEquals(l1.face.normal)) {
                     count ++
                     matchLine = i/2
             } else {
-                //   console.log("but normals don't match")
+                //console.log("but normals don't match")
             }
         }
-        //if (l2.equals(v1) && l1.equals(v2)) 
-        if (Vector3_equals(l1, v2) && Vector3_equals(l2, v1)) { 
+        
+        if (l2.roughlyEquals(v1) && l1.roughlyEquals(v2)) {
             //console.log("match points of line ",  i/2)
-
-            if (Vector3_equals(v1.face.normal, l1.face.normal)) {
+            if (v1.face.normal.roughlyEquals(l1.face.normal)) {
                 count ++
-                matchLine = i/2
+                matchLine = i / 2
             } else {
-                // console.log("but normals don't match")
+                //console.log("but normals don't match")
             }
         }
     }
