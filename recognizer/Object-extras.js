@@ -59,6 +59,41 @@ function LinePieces_hasSharedVerts(vertices, v1, v2, ignoreIndex) {
     return false
 }
         
+Obj3d.firstGeometry = function() {
+    if (this.geometry) {
+        return this.geometry
+    }
+    for (let i = 0; i < this.children.length; i++) {
+        const child = this.children[i]
+        const g = child.firstGeometry()
+        if (g) {
+            return g
+        }
+    }
+    return null
+}
+
+Obj3d.calculateRadius = function() {            
+    const geometry = this.firstGeometry(); 
+    geometry.computeBoundingBox(); 
+    const boundingBox = geometry.boundingBox.clone();
+    console.log('bounding box coordinates: ' + 
+        '(' + boundingBox.min.x + ', ' + boundingBox.min.y + ', ' + boundingBox.min.z + '), ' + 
+        '(' + boundingBox.max.x + ', ' + boundingBox.max.y + ', ' + boundingBox.max.z + ')' );
+
+    this._radius = boundingBox.getBoundingSphere().radius
+    console.log("this._radius = ", this._radius)
+    this._radius = 100
+    return 100
+}
+
+Obj3d.radius = function() { 
+    if (!this._radius) {
+        this.calculateRadius()
+    }     
+    return this._radius
+}
+
 Obj3d.asLineObject = function(color, thickness, opacity) {   
     const newMat = new THREE.LineBasicMaterial( 
         {

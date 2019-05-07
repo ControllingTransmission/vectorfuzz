@@ -120,111 +120,18 @@ class App extends BaseObject {
         mainObject.position.set(0,152,0)
         this.scene().add(mainObject)
         
-        mainObject.calcRadius = function () {
-            /*
-            //this.computeBoundingBox()
-            const box = this.boundingBox()
 
-            //const box = new THREE.Box3().setFromObject(this)
-            const r = box.getBoundingSphere().radius
-            this.radius = r
-            return r
-            */
-        this.radius = 100
-
-            return this.radius
-        }
 
         
         this.spotlight().target = mainObject
 
-        {
-            //const geometry = new THREE.CubeGeometry(100,100,100);
-            var geometry = new THREE.IcosahedronGeometry(100, 0)
-
-
-            //var geometry = new THREE.OctahedronGeometry(100, 0)
-            //var geometry = new THREE.TetrahedronGeometry(100, 0)
-            //var geometry = new THREE.DodecahedronGeometry(100, 0)
-
-            const material = new THREE.MeshPhongMaterial( { ambient: 0x111111, color: 0xdddddd, specular: 0x333300, shininess: 30, shading: THREE.FlatShading } ) 
-
-            //console.log("THREE.Mesh = ", THREE.Mesh)
-            //console.log("THREE.Mesh.prototype.castShadow = ", THREE.Mesh.prototype.castShadow)
-            
-            const object = new THREE.Mesh(geometry, material);
-            object.position.set(0,0,0)
-            mainObject.add( object );
-
-            var geoLines = object.asLineObject(0xff6600, 3, 1)
-            mainObject.add( geoLines );
-            
-            object.makeCastShadow()
-            //Object_castShadow(object)
-
-            object.recursiveSetColor(0x111111)
-            const objectOutline = object.asLineObject()
-
-            const s = 1.005
-            objectOutline.scale.set(s, s, s)
-            //mainObject.add( objectOutline );
-            this.spotlight().target = object
-        }
-        
-        console.log("loading...")
-        
-        const loader = new THREE.OBJMTLLoader();
-        //const loader = new THREE.ObjectLoader();
-        loader.load("models/Recognizer.obj", "models/Recognizer.mtl");    
-        loader.addEventListener("load", (event) => { this.finishedObjLoad(event) } );
-        
+        this.setupTestObject()
+                
+        this.loadModel()
 
         // add the floor
-        {
-            const floorGeometry = new THREE.CubeGeometry(100000,.5,100000);
-            //var floorMaterial = new THREE.MeshLambertMaterial({ color: 0x3d518b });
-            //var floor = new THREE.Mesh(floorGeometry, floorMaterial);
-
-
-            //var floorGeometry = new THREE.PlaneBufferGeometry( 20000, 20000, 30, 30 );
-            var material = new THREE.MeshLambertMaterial( {
-                //color: 0x0000ff, 
-                ambient: 0x0000ff, 
-                wireframe: false, 
-                //wireframeLinewidth: 4,
-                //fog:true,
-                side: THREE.DoubleSide
-            } );
-            
-            const floor = new THREE.Mesh(floorGeometry, material);
-            //floor.rotation.x = 3.14159/2
-            floor.position.x = 0;
-            floor.position.y = 0;
-            floor.position.z = 0;
-            floor.receiveShadow = true;
-            this.scene().add( floor );
-        }
-
-
-        {
-            const floorWireGeometry = new THREE.PlaneGeometry( 20000, 20000, 30, 30 );
-            const material = new THREE.MeshLambertMaterial( {
-                color: 0xffffff, 
-                ambient: 0x0000ff, 
-                wireframe: true, 
-                wireframeLinewidth: 1,
-                fog:true,
-                //transparent: true,
-                //opacity:.5,
-                side: THREE.DoubleSide
-                } );
-            const floorWire = new THREE.Mesh( floorWireGeometry, material );
-            //floorWire.rotation.z += -3.14159/4
-            floorWire.rotation.x = -3.14159/2
-            floorWire.position.y += 1
-            //floorWire.receiveShadow = true;
-            this.scene().add( floorWire );
-        }
+        this.setupFloor()
+        this.setupFloorWire()
 
         this.setRenderer(new THREE.WebGLRenderer());
         this.renderer().setClearColor(0x000000, 1.0);
@@ -233,11 +140,97 @@ class App extends BaseObject {
         this.renderer().shadowMapEnabled = true;
         this.renderer().shadowMapSoft = true;
 
-        this.camera().position.y = mainObject.radius*10
+        this.camera().position.y = mainObject.radius() * 10
         this.render();
     }
 
-    finishedObjLoad(event) {
+    setupTestObject() {
+        //const geometry = new THREE.CubeGeometry(100,100,100);
+        var geometry = new THREE.IcosahedronGeometry(100, 0)
+
+
+        //var geometry = new THREE.OctahedronGeometry(100, 0)
+        //var geometry = new THREE.TetrahedronGeometry(100, 0)
+        //var geometry = new THREE.DodecahedronGeometry(100, 0)
+
+        const material = new THREE.MeshPhongMaterial( { ambient: 0x111111, color: 0xdddddd, specular: 0x333300, shininess: 30, shading: THREE.FlatShading } ) 
+
+        //console.log("THREE.Mesh = ", THREE.Mesh)
+        //console.log("THREE.Mesh.prototype.castShadow = ", THREE.Mesh.prototype.castShadow)
+        
+        const object = new THREE.Mesh(geometry, material);
+        object.position.set(0,0,0)
+        this.mainObject().add( object );
+
+        var geoLines = object.asLineObject(0xff6600, 3, 1)
+        this.mainObject().add( geoLines );
+        
+        object.makeCastShadow()
+        //Object_castShadow(object)
+
+        object.recursiveSetColor(0x111111)
+        const objectOutline = object.asLineObject()
+
+        const s = 1.005
+        objectOutline.scale.set(s, s, s)
+        //this.mainObject().add( objectOutline );
+        this.spotlight().target = object
+    }
+
+    setupFloor() {
+        const floorGeometry = new THREE.CubeGeometry(100000,.5,100000);
+        //var floorMaterial = new THREE.MeshLambertMaterial({ color: 0x3d518b });
+        //var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+
+
+        //var floorGeometry = new THREE.PlaneBufferGeometry( 20000, 20000, 30, 30 );
+        var material = new THREE.MeshLambertMaterial( {
+            //color: 0x0000ff, 
+            ambient: 0x0000ff, 
+            wireframe: false, 
+            //wireframeLinewidth: 4,
+            //fog:true,
+            side: THREE.DoubleSide
+        } );
+        
+        const floor = new THREE.Mesh(floorGeometry, material);
+        //floor.rotation.x = 3.14159/2
+        floor.position.x = 0;
+        floor.position.y = 0;
+        floor.position.z = 0;
+        floor.receiveShadow = true;
+        this.scene().add( floor );
+    }
+
+    setupFloorWire() {
+        const floorWireGeometry = new THREE.PlaneGeometry( 20000, 20000, 30, 30 );
+        const material = new THREE.MeshLambertMaterial( {
+            color: 0xffffff, 
+            ambient: 0x0000ff, 
+            wireframe: true, 
+            wireframeLinewidth: 1,
+            fog:true,
+            //transparent: true,
+            //opacity:.5,
+            side: THREE.DoubleSide
+            } );
+        const floorWire = new THREE.Mesh( floorWireGeometry, material );
+        //floorWire.rotation.z += -3.14159/4
+        floorWire.rotation.x = -3.14159/2
+        floorWire.position.y += 1
+        //floorWire.receiveShadow = true;
+        this.scene().add( floorWire );
+    }
+
+    loadModel() {
+        console.log("loading...")
+        const loader = new THREE.OBJMTLLoader();
+        //const loader = new THREE.ObjectLoader();
+        loader.load("models/Recognizer.obj", "models/Recognizer.mtl");    
+        loader.addEventListener("load", (event) => { this.didFinishLoadModel(event) } );
+    }
+
+    didFinishLoadModel(event) {
         const object = event.content
         console.log("loaded")
         // Object_castShadow(object)
@@ -258,7 +251,7 @@ class App extends BaseObject {
         //carrierOutline.scale.set(s, s, s);
         carrier.add(carrierOutline)
         
-        this.mainObject().calcRadius()
+        //this.mainObject().calculateRadius()
         
         //carrier.scale.set(s,s,s)
 
@@ -281,15 +274,15 @@ class App extends BaseObject {
         
         this.spotlight().target = carrier
         
-        carrier.maxz = 1500
+        carrier.maxz =  1500
         carrier.minz = -1500
         //carrier.position.set(0,3,0);
         //carrier.position.set(0,300,0);
 
-        this.mainObject().calcRadius()
-        const s = 100/this.mainObject().radius
+        const radius = this.mainObject().calculateRadius()
+        const s = 100 / radius
         this.mainObject().scale.set(s, s, s)
-        console.log("carrier loaded radius: ", this.mainObject().radius)
+        console.log("carrier loaded radius: ", this.mainObject().radius())
     }
 
     render() {
@@ -297,9 +290,9 @@ class App extends BaseObject {
             this.setTime(this.time() + 6)
             const speed = 1 / 500
             //this.camera().position.y += .01
-            const r = this.mainObject().radius * 14
+            const r = this.mainObject().radius() * 14
             this.camera().position.x = r * Math.cos(speed * this.time())
-            this.camera().position.y = this.mainObject().radius * 20 + r * Math.cos(speed * this.time() * 1.5)
+            this.camera().position.y = this.mainObject().radius() * 20 + r * Math.cos(speed * this.time() * 1.5)
             this.camera().position.z = r * Math.sin(speed * this.time())
             
             //this.mainObject().rotation.y += .05
