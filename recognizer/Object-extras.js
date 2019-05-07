@@ -1,4 +1,5 @@
 
+/*
 class BaseObject {
 
     static shared() {
@@ -54,7 +55,6 @@ class BaseObject {
     }
 }
 
-/*
 class Test extends ObjectBase {
     init() {
         super.init()
@@ -68,7 +68,7 @@ const Obj3d = THREE.Object3D.prototype
 
 Obj3d.makeDoubleSided = function() {
     //this.material.side = THREE.DoubleSide;
-
+    
     this.traverse( function(node) { 
         if ( node instanceof THREE.Mesh ) { 
             node.material.side = THREE.DoubleSide;
@@ -89,22 +89,18 @@ Obj3d.makeCastShadow = function() {
 }
 
 
-function Vector3_equals(v1, v2)
-{
+function Vector3_equals(v1, v2) {
     //return v1.x == v2.x && v1.y == v2.y && v1.z == v2.z;
-    var d = 0.001
+    const d = 0.001
     return Math.abs(v1.x - v2.x) < d && Math.abs(v1.y - v2.y) < d && Math.abs(v1.z - v2.z) < d
 }
 
-function LinePieces_hasSharedVerts(vertices, v1, v2, ignoreIndex)
-{  
+function LinePieces_hasSharedVerts(vertices, v1, v2, ignoreIndex) {  
     let count = 0
     let matchLine = null;
     
-    for (let i = 0; i < vertices.length; i += 2)
-    {
-        if (i == ignoreIndex)
-        {
+    for (let i = 0; i < vertices.length; i += 2) {
+        if (i == ignoreIndex) {
             continue;
         }
             
@@ -112,32 +108,24 @@ function LinePieces_hasSharedVerts(vertices, v1, v2, ignoreIndex)
         const l2 = vertices[i+1]
         
         //if (l1.equals(v1) && l2.equals(v2)) 
-        if (Vector3_equals(l1, v1) && Vector3_equals(l2, v2)) 
-        { 
+        if (Vector3_equals(l1, v1) && Vector3_equals(l2, v2)) { 
                 //console.log("match points of line ",  i/2)
 
-            if (Vector3_equals(v1.face.normal, l1.face.normal))
-            {
+            if (Vector3_equals(v1.face.normal, l1.face.normal)) {
                     count ++
                     matchLine = i/2
-            }
-            else
-            {
+            } else {
                 //   console.log("but normals don't match")
             }
         }
         //if (l2.equals(v1) && l1.equals(v2)) 
-        if (Vector3_equals(l1, v2) && Vector3_equals(l2, v1)) 
-        { 
+        if (Vector3_equals(l1, v2) && Vector3_equals(l2, v1)) { 
             //console.log("match points of line ",  i/2)
 
-            if (Vector3_equals(v1.face.normal, l1.face.normal))
-            {
+            if (Vector3_equals(v1.face.normal, l1.face.normal)) {
                 count ++
                 matchLine = i/2
-            }
-            else
-            {
+            } else {
                 // console.log("but normals don't match")
             }
         }
@@ -205,9 +193,9 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
                     const b = new THREE.Vector3().copy(verts[f.b])
                     const c = new THREE.Vector3().copy(verts[f.c])
                     /*                            
-                    var a = verts[f.a].clone()
-                    var b = verts[f.b].clone()
-                    var c = verts[f.c].clone()
+                    const a = verts[f.a].clone()
+                    const b = verts[f.b].clone()
+                    const c = verts[f.c].clone()
                     */                                                     
                     a.face = f
                     b.face = f
@@ -223,8 +211,8 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
                     allVerts.push(a)
 
                     /*
-                    var ns = 5
-                    var n = f.normal.clone().multiplyScalar(ns)
+                    const ns = 5
+                    const n = f.normal.clone().multiplyScalar(ns)
                     normals.push(a)
                     normals.push(a.clone().add(n))
                     
@@ -261,12 +249,12 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
             newVerts.push(b)
             
             /*
-            var ns = -10
-            var n = a.face.normal.clone().multiplyScalar(ns)
+            const ns = -10
+            let n = a.face.normal.clone().multiplyScalar(ns)
             normals.push(a)
             normals.push(a.clone().sub(n))
             
-            var n = b.face.normal.clone().multiplyScalar(ns)
+            n = b.face.normal.clone().multiplyScalar(ns)
             normals.push(b)
             normals.push(b.clone().sub(n))
             */
