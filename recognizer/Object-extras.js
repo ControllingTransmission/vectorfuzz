@@ -68,7 +68,7 @@ const Obj3d = THREE.Object3D.prototype
 
 Obj3d.makeDoubleSided = function() {
     //this.material.side = THREE.DoubleSide;
-    
+
     this.traverse( function(node) { 
         if ( node instanceof THREE.Mesh ) { 
             node.material.side = THREE.DoubleSide;
@@ -285,7 +285,13 @@ Obj3d.recursiveSetLineWidth = function(width) {
         } 
     } );
 }
-        
+
+Obj3d.randomizePos = function() {
+    this.position.x = 2000 * (Math.random() - 0.5)
+    this.position.y = 2000 * (Math.random() - 0.0) + 5
+    this.position.z = 1000 * (Math.random() - 0.5)    
+}
+
 Obj3d.recursiveSetOpacity = function(opacity) {           
     this.traverse( (node) => { 
         if ( node instanceof THREE.Mesh ) { 

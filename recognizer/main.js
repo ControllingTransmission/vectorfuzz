@@ -1,7 +1,6 @@
 
 
 var container;
-
 var controls;
 
 var camera, scene, renderer;
@@ -10,26 +9,24 @@ var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 
 var time = 0
-    
+var mainObject = null
 
-function SpotLight_new()
-{
-    var self = new THREE.SpotLight( 0xaaaaaa );
-    self.position.set( -1500, 3500, 0 );
+function SpotLight_new() {
+    const self = new THREE.SpotLight(0xaaaaaa);
+    self.position.set(-1500, 3500, 0);
     self.castShadow = true;
 
-    var detail = 4
-    self.shadowMapWidth = 512*detail;
-    self.shadowMapHeight = 512*detail;
+    const detail = 4
+    self.shadowMapWidth  = 512 * detail;
+    self.shadowMapHeight = 512 * detail;
     scene.add(self);    
     //self.shadowCameraVisible = true;
     return self       
 }
 
-function init() 
-{            
-    container = document.createElement( 'div' );
-    document.body.appendChild( container );
+function init() {            
+    container = document.createElement("div");
+    document.body.appendChild(container);
 
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 20, 10000);
 
@@ -40,13 +37,12 @@ function init()
     //controls = new THREE.OrbitControls( camera );
     //controls.addEventListener( 'change', render );
 
-    var ambientLight = new THREE.AmbientLight(0x333333);
+    const ambientLight = new THREE.AmbientLight(0x333333);
     scene.add(ambientLight);
 
 
-    carrier = null
+    //carrier = null
     carrierSpotlight = SpotLight_new()
-    mainObject = null
     
     mainObject = new THREE.Object3D();
     mainObject.position.set(0,52,0)
@@ -58,8 +54,8 @@ function init()
         //this.computeBoundingBox()
         const box = this.boundingBox()
 
-        //var box = new THREE.Box3().setFromObject(this)
-        var r = box.getBoundingSphere().radius
+        //const box = new THREE.Box3().setFromObject(this)
+        const r = box.getBoundingSphere().radius
         this.radius = r
         return r
         */
@@ -70,30 +66,33 @@ function init()
 
     /*
     mainObject.step = function() {
-        var self = this
-        self.rotation.x += .005
-        self.rotation.y += .005   
+        this.rotation.x += .005
+        this.rotation.y += .005   
     }
     */
     
     carrierSpotlight.target = mainObject
 
-
     {
-        var geometry = new THREE.CubeGeometry(100,100,100);
-        //var geometry = new THREE.IcosahedronGeometry(100, 0)
+        //const geometry = new THREE.CubeGeometry(100,100,100);
+        var geometry = new THREE.IcosahedronGeometry(100, 0)
+
+
         //var geometry = new THREE.OctahedronGeometry(100, 0)
         //var geometry = new THREE.TetrahedronGeometry(100, 0)
         //var geometry = new THREE.DodecahedronGeometry(100, 0)
 
-        var material = new THREE.MeshPhongMaterial( { ambient: 0x111111, color: 0xdddddd, specular: 0x333300, shininess: 30, shading: THREE.FlatShading } ) 
+        const material = new THREE.MeshPhongMaterial( { ambient: 0x111111, color: 0xdddddd, specular: 0x333300, shininess: 30, shading: THREE.FlatShading } ) 
 
         //console.log("THREE.Mesh = ", THREE.Mesh)
         //console.log("THREE.Mesh.prototype.castShadow = ", THREE.Mesh.prototype.castShadow)
         
-        var object = new THREE.Mesh(geometry, material);
+        const object = new THREE.Mesh(geometry, material);
         object.position.set(0,0,0)
         mainObject.add( object );
+
+        var geoLines = object.asLineObject(0xff6600, 3, 1)
+        mainObject.add( geoLines );
         
         object.makeCastShadow()
         //Object_castShadow(object)
@@ -101,8 +100,7 @@ function init()
         object.recursiveSetColor(0x111111)
         objectOutline = object.asLineObject()
 
-
-        var s = 1.005
+        const s = 1.005
         objectOutline.scale.set(s, s, s)
         //mainObject.add( objectOutline );
         carrierSpotlight.target = object
@@ -113,10 +111,10 @@ function init()
     
     const loader = new THREE.OBJMTLLoader();
     //const loader = new THREE.ObjectLoader();
-    loader.load('models/Recognizer.obj', 'models/Recognizer.mtl');    
-    loader.addEventListener( 'load', finishedObjLoad );
+    loader.load("models/Recognizer.obj", "models/Recognizer.mtl");    
+    loader.addEventListener("load", finishedObjLoad );
        
-    function finishedObjLoad( event ) {
+    function finishedObjLoad(event) {
         const object = event.content
         console.log("loaded")
         // Object_castShadow(object)
@@ -126,14 +124,14 @@ function init()
         //object.recursiveSetColor(0x004400)
         object.recursiveSetColor(0x552222)
         
-        carrier = new THREE.Object3D();
+        const carrier = new THREE.Object3D();
         carrier.add(object)
         
-        //var s = 1/10
+        //const s = 1/10
         //carrier.scale.set(s, s, s)
         
         carrierOutline = object.asLineObject(0xff6600, 3, 1)
-        //var s = 1.001
+        //const s = 1.001
         //carrierOutline.scale.set(s, s, s);
         carrier.add(carrierOutline)
         
@@ -142,7 +140,7 @@ function init()
         //carrier.scale.set(s,s,s)
 
         /*
-        var glow = object.asLineObject(0xffff00, 20, .1)
+        const glow = object.asLineObject(0xffff00, 20, .1)
         glow.recursiveSetColor(0xffffff)
         //glow.recursiveSetOpacity(.5)
         //glow.recursiveSetLineWidth(10)
@@ -151,12 +149,11 @@ function init()
         */
         
         /*
-        var m = carrierOutline.children[0].material
+        const m = carrierOutline.children[0].material
         m.wireframeLinewidth = 50
         m.needsUpdate = true
         */
         
-
         mainObject.add( carrier );
         
         carrierSpotlight.target = carrier
@@ -164,19 +161,18 @@ function init()
         carrier.maxz = 1500
         carrier.minz = -1500
         //carrier.position.set(0,3,0);
-
         //carrier.position.set(0,300,0);
 
         mainObject.calcRadius()
-        var s = 100/mainObject.radius
-        mainObject.scale.set(s,s,s)
+        const s = 100/mainObject.radius
+        mainObject.scale.set(s, s, s)
         console.log("carrier loaded radius: ", mainObject.radius)
     }
 
     
     // add the floor
     {
-        var floorGeometry = new THREE.CubeGeometry(100000,.5,100000);
+        const floorGeometry = new THREE.CubeGeometry(100000,.5,100000);
         //var floorMaterial = new THREE.MeshLambertMaterial({ color: 0x3d518b });
         //var floor = new THREE.Mesh(floorGeometry, floorMaterial);
 
@@ -189,8 +185,9 @@ function init()
             //wireframeLinewidth: 4,
             //fog:true,
             side: THREE.DoubleSide
-            } );
-        var floor = new THREE.Mesh( floorGeometry, material );
+        } );
+        
+        const floor = new THREE.Mesh(floorGeometry, material);
         //floor.rotation.x = 3.14159/2
         floor.position.x = 0;
         floor.position.y = 0;
@@ -201,8 +198,8 @@ function init()
 
 
     {
-        var floorWireGeometry = new THREE.PlaneGeometry( 20000, 20000, 30, 30 );
-        var material = new THREE.MeshLambertMaterial( {
+        const floorWireGeometry = new THREE.PlaneGeometry( 20000, 20000, 30, 30 );
+        const material = new THREE.MeshLambertMaterial( {
             color: 0xffffff, 
             ambient: 0x0000ff, 
             wireframe: true, 
@@ -212,7 +209,7 @@ function init()
             //opacity:.5,
             side: THREE.DoubleSide
             } );
-        var floorWire = new THREE.Mesh( floorWireGeometry, material );
+        const floorWire = new THREE.Mesh( floorWireGeometry, material );
         //floorWire.rotation.z += -3.14159/4
         floorWire.rotation.x = -3.14159/2
         floorWire.position.y += 1
@@ -233,35 +230,27 @@ function init()
 
 
 function render() {
-    if (mainObject)
-    {
-        time ++
-        var speed = 1/500
+    if (mainObject) {
+        time += 6
+        const speed = 1 / 500
         //camera.position.y += .01
-        var r = mainObject.radius*14
-        //time = 0
-        camera.position.x = r*Math.cos(speed*time)
-        camera.position.y = mainObject.radius*20 + r*Math.cos(speed*time*1.5)
-        camera.position.z = r*Math.sin(speed*time)
+        const r = mainObject.radius * 14
+        camera.position.x = r * Math.cos(speed * time)
+        camera.position.y = mainObject.radius * 20 + r * Math.cos(speed * time * 1.5)
+        camera.position.z = r * Math.sin(speed * time)
         
         //mainObject.rotation.y += .05
         
-        var p = mainObject.position.clone()
+        const p = mainObject.position.clone()
         //p.y *= 1/2
         camera.lookAt(p)
         
-        if (mainObject.step) 
-        {
+        if (mainObject.step) {
             // mainObject.step()
         }
     }
-    renderer.render(scene, camera);
-}
 
-function Object_randomizePos(obj){
-    obj.position.x = 2000*(Math.random() - 0.5)
-    obj.position.y = 2000*(Math.random() - 0.0) + 5
-    obj.position.z = 1000*(Math.random() - 0.5)    
+    renderer.render(scene, camera);
 }
 
 function animate() {
@@ -270,12 +259,12 @@ function animate() {
 }
 
 function onWindowResize() {
-    var f = 1
+    const f = 1
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth/f, window.innerHeight/f );
+    renderer.setSize( window.innerWidth / f, window.innerHeight / f );
 }
-window.addEventListener( 'resize', onWindowResize, false );
+window.addEventListener("resize", onWindowResize, false);
 
 
 function main() {
@@ -286,4 +275,3 @@ function main() {
 window.onload = function() {
     main()
 }
-
