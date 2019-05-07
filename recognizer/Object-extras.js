@@ -77,12 +77,13 @@ Obj3d.calculateRadius = function() {
     const geometry = this.firstGeometry(); 
     geometry.computeBoundingBox(); 
     const boundingBox = geometry.boundingBox.clone();
+    /*
     console.log('bounding box coordinates: ' + 
         '(' + boundingBox.min.x + ', ' + boundingBox.min.y + ', ' + boundingBox.min.z + '), ' + 
         '(' + boundingBox.max.x + ', ' + boundingBox.max.y + ', ' + boundingBox.max.z + ')' );
-
+    */
     this._radius = boundingBox.getBoundingSphere().radius
-    console.log("this._radius = ", this._radius)
+    //console.log("this._radius = ", this._radius)
     this._radius = 100
     return 100
 }
@@ -220,7 +221,7 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
         }
     } 
     
-    const newObj =  new THREE.Line( newGeo, newMat, THREE.LinePieces );
+    const newObj = new THREE.Line( newGeo, newMat, THREE.LinePieces );
     const out = new THREE.Object3D();
     out.add(newObj)
                 
@@ -245,11 +246,13 @@ Obj3d.recursiveSetLineWidth = function(width) {
     } );
 }
 
+/*
 Obj3d.randomizePos = function() {
     this.position.x = 2000 * (Math.random() - 0.5)
     this.position.y = 2000 * (Math.random() - 0.0) + 5
     this.position.z = 1000 * (Math.random() - 0.5)    
 }
+*/
 
 Obj3d.recursiveSetOpacity = function(opacity) {           
     this.traverse( (node) => { 
