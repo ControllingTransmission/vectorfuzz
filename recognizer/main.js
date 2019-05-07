@@ -231,6 +231,7 @@ class App extends BaseObject {
         const loader = new THREE.OBJMTLLoader();
         //const loader = new THREE.ObjectLoader();
         loader.load("models/Recognizer.obj", "models/Recognizer.mtl");    
+        //loader.load("models/Hg_carrier.obj", "models/Hg_carrier.mtl");    
         loader.addEventListener("load", (event) => { this.didFinishLoadModel(event) } );
     }
 
@@ -240,49 +241,32 @@ class App extends BaseObject {
         //object.makeCastShadow()
         //object.makeDoubleSided()
         //object.recursiveSetColor(0x004400)
-        object.recursiveSetColor(0x552222)
+        //object.recursiveSetColor(0x552222)
+        object.recursiveSetColor(0x000000)
         object.makeCastShadow()
 
-        const carrier = new THREE.Object3D();
-        carrier.add(object)
+        const group = new THREE.Object3D();
+        group.add(object)
         
-        //const s = 1/10
-        //carrier.scale.set(s, s, s)
-        
-        const carrierOutline = object.asLineObject(0xff6600, 3, 1)
-        //const s = 1.001
-        //carrierOutline.scale.set(s, s, s);
-        carrier.add(carrierOutline)
+        const outline = object.asLineObject(0xff6600, 3, 1)
+        const s = 1.001
+        outline.scale.set(s, s, s);
+        group.add(outline)
             
-        //carrier.scale.set(s,s,s)
-
         /*
-        const glow = object.asLineObject(0xffff00, 20, .1)
+        const glow = object.asLineObject(0xffff00, 6, .5)
         glow.recursiveSetColor(0xffffff)
         //glow.recursiveSetOpacity(.5)
         //glow.recursiveSetLineWidth(10)
-            glow.scale.set(s, s, s);
-            carrier.add(glow)
+        glow.scale.set(s, s, s);
+        group.add(glow)
         */
         
-        /*
-        const m = carrierOutline.children[0].material
-        m.wireframeLinewidth = 50
-        m.needsUpdate = true
-        */
+        this.mainObject().add(group);
         
-        this.mainObject().add( carrier );
-        
-        this.spotlight().target = carrier
-        
-        carrier.maxz =  1500
-        carrier.minz = -1500
-        //carrier.position.set(0,3,0);
-        //carrier.position.set(0,300,0);
-
-        const radius = this.mainObject().radius()
-        const s = 100 / radius
-        this.mainObject().scale.set(s, s, s)
+        this.spotlight().target = object
+        const ms = 100 / this.mainObject().radius()
+        this.mainObject().scale.set(ms, ms, ms)
         console.log("carrier loaded radius: ", this.mainObject().radius())
     }
 
@@ -291,7 +275,7 @@ class App extends BaseObject {
             this.setTime(this.time() + 6)
             const speed = 1 / 500
             //this.camera().position.y += .01
-            const r = this.mainObject().radius() * 14
+            const r = this.mainObject().radius() * 15
             this.camera().position.x = r * Math.cos(speed * this.time())
             this.camera().position.y = this.mainObject().radius() * 20 + r * Math.cos(speed * this.time() * 1.5)
             this.camera().position.z = r * Math.sin(speed * this.time())

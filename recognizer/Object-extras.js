@@ -105,6 +105,8 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
             fog: true,
             transparent: opacity != 1,
             opacity:opacity,
+            linecap: "round",
+            linejoin: "round",
         }
     );
     
@@ -135,7 +137,7 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
     const sharedVerts = sharedGeo.vertices
     
     const normalGeo = new THREE.Geometry();
-    const normals = normalGeo.vertices
+    //const normals = normalGeo.vertices
         
     const allVerts = []
 
@@ -222,8 +224,8 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
     } 
     
     const newObj = new THREE.Line( newGeo, newMat, THREE.LinePieces );
-    const out = new THREE.Object3D();
-    out.add(newObj)
+    //const out = new THREE.Object3D();
+    //out.add(newObj)
                 
     // console.log("newVerts = ", newVerts.length)
     //console.log("sharedVerts = ", sharedVerts.length)
@@ -234,7 +236,7 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
     //newObj.scale.copy(this.scale)
     //newObj.rotation.copy(this.rotation)
 
-    return out
+    return newObj
 }
 
 Obj3d.recursiveSetLineWidth = function(width) {           
