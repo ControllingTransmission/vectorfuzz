@@ -1,15 +1,88 @@
 
+class BaseObject {
+    static shared() {
+        if (!this._shared) {
+            this._shared = this.clone()
+        }
+        return this._shared
+    }
+  
+    type() {
+        return this.constructor.name
+    }
+  
+    static clone() {
+        const obj = new this()
+        obj.init()
+        return obj
+    }
+  
+    init() {
+        // subclasses should override to initialize
+    }
+  
+    newSlot(slotName, initialValue) {
+        if (typeof(slotName) !== "string") {
+            throw new Error("slot name must be a string"); 
+        }
+  
+        if (initialValue === undefined) { 
+            initialValue = null 
+        };
+  
+        const privateName = "_" + slotName;
+        this[privateName] = initialValue;
+  
+        if (!this[slotName]) {
+            this[slotName] = function () {
+                return this[privateName];
+            }
+        }
+  
+        const setterName = "set" + slotName.capitalized()
+  
+        if (!this[setterName]) {
+            this[setterName] = function (newValue) {
+                this[privateName] = newValue;
+                //this.updateSlot(slotName, privateName, newValue);
+                return this;
+            }
+        }
+  
+        return this;
+    }
+  }
 
-var container;
-var controls;
+  // ----------------------------------------------------------------------------------
 
-var camera, scene, renderer;
+class App extends BaseObject {
+    init() {
+        super.init()
+        this.newSlot("container", null);
+        this.newSlot("controls", null);
+        // subclasses should override to initialize
 
-var windowHalfX = window.innerWidth / 2;
-var windowHalfY = window.innerHeight / 2;
+        this.newSlot("camera", null);
+        this.newSlot("scene", null);
+        this.newSlot("renderer", null);
 
-var time = 0
-var mainObject = null
+        this.newSlot("time", null);
+        this.newSlot("mainObject", null);
+    }
+
+    
+}
+
+let container;
+let controls;
+
+let camera, scene, renderer;
+
+//let windowHalfX = window.innerWidth / 2;
+//let windowHalfY = window.innerHeight / 2;
+
+let time = 0
+let mainObject = null
 
 function SpotLight_new() {
     const self = new THREE.SpotLight(0xaaaaaa);

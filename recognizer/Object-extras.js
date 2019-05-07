@@ -30,42 +30,33 @@ Obj3d.makeCastShadow = function() {
 }
 
 
-
-
 function LinePieces_hasSharedVerts(vertices, v1, v2, ignoreIndex) {  
-    let count = 0
-    let matchLine = null;
-    
     for (let i = 0; i < vertices.length; i += 2) {
-        if (i == ignoreIndex) {
+        if (i === ignoreIndex) {
             continue;
         }
             
         const l1 = vertices[i]
         const l2 = vertices[i+1]
         
+        // see if the vertices match
         if (l1.roughlyEquals(v1) && l2.roughlyEquals(v2)) {
-            //console.log("match points of line ",  i/2)
+            // see if their normals match
             if (v1.face.normal.roughlyEquals(l1.face.normal)) {
-                    count ++
-                    matchLine = i/2
-            } else {
-                //console.log("but normals don't match")
+                return true
             }
         }
         
+        // see if the vertices match
         if (l2.roughlyEquals(v1) && l1.roughlyEquals(v2)) {
-            //console.log("match points of line ",  i/2)
+            // see if their normals match
             if (v1.face.normal.roughlyEquals(l1.face.normal)) {
-                count ++
-                matchLine = i / 2
-            } else {
-                //console.log("but normals don't match")
+                return true
             }
         }
     }
     
-    return count != 0
+    return false
 }
         
 Obj3d.asLineObject = function(color, thickness, opacity) {   
@@ -113,53 +104,52 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
     const allVerts = []
 
     this.traverse(function(node) { 
-            if (node instanceof THREE.Mesh) { 
-                const faces = node.geometry.faces
+        if (node instanceof THREE.Mesh) { 
+            const faces = node.geometry.faces
+            
+            node.geometry.computeFaceNormals()
+                                    
+            const verts = node.geometry.vertices
+            
+            for (let i = 0; i < faces.length; i ++) {
+                let f = faces[i]
                 
-                node.geometry.computeFaceNormals()
-                                        
-                const verts = node.geometry.vertices
+                const a = new THREE.Vector3().copy(verts[f.a])
+                const b = new THREE.Vector3().copy(verts[f.b])
+                const c = new THREE.Vector3().copy(verts[f.c])
+                /*                            
+                const a = verts[f.a].clone()
+                const b = verts[f.b].clone()
+                const c = verts[f.c].clone()
+                */                                                     
+                a.face = f
+                b.face = f
+                c.face = f
                 
-                for (let i = 0; i <  faces.length; i ++) {
-                    let f = faces[i]
-                    
-                    const a = new THREE.Vector3().copy(verts[f.a])
-                    const b = new THREE.Vector3().copy(verts[f.b])
-                    const c = new THREE.Vector3().copy(verts[f.c])
-                    /*                            
-                    const a = verts[f.a].clone()
-                    const b = verts[f.b].clone()
-                    const c = verts[f.c].clone()
-                    */                                                     
-                    a.face = f
-                    b.face = f
-                    c.face = f
-                    
-                    allVerts.push(a)
-                    allVerts.push(b)
+                allVerts.push(a)
+                allVerts.push(b)
 
-                    allVerts.push(b)
-                    allVerts.push(c)
-                
-                    allVerts.push(c)
-                    allVerts.push(a)
+                allVerts.push(b)
+                allVerts.push(c)
+            
+                allVerts.push(c)
+                allVerts.push(a)
 
-                    /*
-                    const ns = 5
-                    const n = f.normal.clone().multiplyScalar(ns)
-                    normals.push(a)
-                    normals.push(a.clone().add(n))
-                    
-                    normals.push(b)
-                    normals.push(b.clone().add(n))
-                    
-                    normals.push(c)
-                    normals.push(c.clone().add(n))
-                    */
-                }
-            } 
+                /*
+                const ns = 5
+                const n = f.normal.clone().multiplyScalar(ns)
+                normals.push(a)
+                normals.push(a.clone().add(n))
+                
+                normals.push(b)
+                normals.push(b.clone().add(n))
+                
+                normals.push(c)
+                normals.push(c.clone().add(n))
+                */
+            }
         } 
-    );
+    });
             
     console.log("allVerts = ", allVerts.length)
     console.log("lines = ", allVerts.length/2)
