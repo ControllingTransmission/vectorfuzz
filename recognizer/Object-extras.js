@@ -95,6 +95,19 @@ Obj3d.radius = function() {
     return this._radius
 }
 
+Obj3d.addOutline = function(color, thickness, opacity) {   
+    if (color === undefined) { color = 0xff6600; }
+    if (thickness === undefined) { thickness = 3; }
+    if (opacity === undefined) { opacity = 1; }
+
+    const outline = this.asLineObject(color, thickness, opacity)
+    const s = 1.005
+    outline.scale.set(s, s, s)
+    this.add(outline);
+    return outline
+}
+
+
 Obj3d.asLineObject = function(color, thickness, opacity) {   
     const newMat = new THREE.LineBasicMaterial( 
         {

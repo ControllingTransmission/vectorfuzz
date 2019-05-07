@@ -100,6 +100,7 @@ class App extends BaseObject {
         this.setCamera(new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 20, 10000));
         this.setScene(new THREE.Scene());
         //this.scene().fog = new THREE.Fog( 0x000000, .1, 10000);
+        //this.scene().fog = new THREE.Fog( 0x000000, 0, 15000);
         //this.setControls(new THREE.OrbitControls(this.camera()));
         //this.controls().addEventListener("change", render );
 
@@ -116,14 +117,14 @@ class App extends BaseObject {
         this.scene().add(this.spotlight());    
         this.spotlight().target = this.mainObject()
 
-        this.setupTestObject()
-                
-        this.loadModel()
+        this.setupTestObject()                
+        this.loadModel("Recognizer")
+
         this.setupFloor()
         this.setupRenderer()
-        this.camera().position.y = mainObject.radius() * 10;
 
-        window.addEventListener("resize", (event) => { this.onWindowResize() }, false);
+        window.addEventListener("resize", (event) => { this.onWindowResize(event) }, false);
+        this.onWindowResize()
     }
 
     setupRenderer() {
@@ -141,38 +142,26 @@ class App extends BaseObject {
     setupTestObject() {
         const geometry = new THREE.CubeGeometry(100,100,100);
         //var geometry = new THREE.IcosahedronGeometry(100, 0)
-
-
         //var geometry = new THREE.OctahedronGeometry(100, 0)
         //var geometry = new THREE.TetrahedronGeometry(100, 0)
         //var geometry = new THREE.DodecahedronGeometry(100, 0)
 
-        const material = new THREE.MeshPhongMaterial( { ambient: 0x111111, color: 0xdddddd, specular: 0x333300, shininess: 30, shading: THREE.FlatShading } ) 
-
-        //console.log("THREE.Mesh = ", THREE.Mesh)
-        //console.log("THREE.Mesh.prototype.castShadow = ", THREE.Mesh.prototype.castShadow)
+        const material = new THREE.MeshPhongMaterial( { 
+                ambient: 0x111111, 
+                color: 0xdddddd, 
+                specular: 0x333300, 
+                shininess: 30, 
+                shading: THREE.FlatShading 
+        }) 
         
         const object = new THREE.Mesh(geometry, material);
         object.position.set(0,0,0)
-        this.mainObject().add( object );
-
-        var geoLines = object.asLineObject(0xff6600, 3, 1)
-        const s = 1.005
-        geoLines.scale.set(s, s, s)
-        this.mainObject().add( geoLines );
-        
         object.makeCastShadow()
-
         object.recursiveSetColor(0x111111)
-        /*
-        const objectOutline = object.asLineObject(0xff6600, 3, 1)
+        //object.recursiveSetColor(0x000000)
+        object.addOutline()
 
-        const s = 1.005
-        objectOutline.scale.set(s, s, s)
-        this.mainObject().add( objectOutline );
-        */
-
-        this.spotlight().target = object
+        this.mainObject().add( object );
     }
 
     setupFloor() {
@@ -226,18 +215,19 @@ class App extends BaseObject {
         this.scene().add( floorWire );
     }
 
-    loadModel() {
+    loadModel(modelName) {
         console.log("loading...")
         const loader = new THREE.OBJMTLLoader();
         //const loader = new THREE.ObjectLoader();
-        loader.load("models/Recognizer.obj", "models/Recognizer.mtl");    
+        loader.load("models/" + modelName + ".obj", "models/" + modelName +".mtl");    
         //loader.load("models/Hg_carrier.obj", "models/Hg_carrier.mtl");    
         loader.addEventListener("load", (event) => { this.didFinishLoadModel(event) } );
     }
 
     didFinishLoadModel(event) {
-        const object = event.content
         console.log("loaded")
+
+        const object = event.content
         //object.makeCastShadow()
         //object.makeDoubleSided()
         //object.recursiveSetColor(0x004400)
@@ -245,29 +235,17 @@ class App extends BaseObject {
         object.recursiveSetColor(0x000000)
         object.makeCastShadow()
 
-        const group = new THREE.Object3D();
-        group.add(object)
+        //const group = new THREE.Object3D();
+        //group.add(object)
         
-        const outline = object.asLineObject(0xff6600, 3, 1)
-        const s = 1.001
-        outline.scale.set(s, s, s);
-        group.add(outline)
-            
-        /*
-        const glow = object.asLineObject(0xffff00, 6, .5)
-        glow.recursiveSetColor(0xffffff)
-        //glow.recursiveSetOpacity(.5)
-        //glow.recursiveSetLineWidth(10)
-        glow.scale.set(s, s, s);
-        group.add(glow)
-        */
-        
-        this.mainObject().add(group);
+        object.addOutline(0xff6600, 3, 1)
+        //object.addOutline(0xff6600, 10, .5) // glow
+
+        this.mainObject().add(object);
         
         this.spotlight().target = object
         const ms = 100 / this.mainObject().radius()
         this.mainObject().scale.set(ms, ms, ms)
-        console.log("carrier loaded radius: ", this.mainObject().radius())
     }
 
     render() {
@@ -283,7 +261,7 @@ class App extends BaseObject {
             //this.mainObject().rotation.y += .05
             
             const p = this.mainObject().position.clone()
-            //p.y *= 1/2
+            p.y *= 6
             this.camera().lookAt(p)
             
             if (this.mainObject().step) {
@@ -311,7 +289,9 @@ class App extends BaseObject {
         const f = 1
         this.camera().aspect = window.innerWidth / window.innerHeight;
         this.camera().updateProjectionMatrix();
-        this.renderer().setSize( window.innerWidth / f, window.innerHeight / f );
+        const w = Math.floor(window.innerWidth / f);
+        const h = Math.floor(window.innerHeight / f);
+        this.renderer().setSize(w, h);
     }
 
     run() {
