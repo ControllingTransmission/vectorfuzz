@@ -77,13 +77,13 @@ Obj3d.calculateRadius = function() {
     const geometry = this.firstGeometry(); 
     geometry.computeBoundingBox(); 
     const boundingBox = geometry.boundingBox.clone();
-    /*
+    
     console.log('bounding box coordinates: ' + 
         '(' + boundingBox.min.x + ', ' + boundingBox.min.y + ', ' + boundingBox.min.z + '), ' + 
         '(' + boundingBox.max.x + ', ' + boundingBox.max.y + ', ' + boundingBox.max.z + ')' );
-    */
+    
     this._radius = boundingBox.getBoundingSphere().radius
-    //console.log("this._radius = ", this._radius)
+    console.log("calculated radius = ", this._radius)
     this._radius = 100
     return 100
 }
@@ -101,10 +101,40 @@ Obj3d.addOutline = function(color, thickness, opacity) {
     if (opacity === undefined) { opacity = 1; }
 
     const outline = this.asLineObject(color, thickness, opacity)
+    //const outline = this.asEdgesObject(color, thickness, opacity)
     const s = 1.005
     outline.scale.set(s, s, s)
     this.add(outline);
     return outline
+}
+
+Obj3d.asEdgesObject = function(color, thickness, opacity) {   
+    const newMat = new THREE.LineBasicMaterial( 
+        {
+            color: color, 
+            //color: 0xff5500, 
+            //color: 0x0055ff, 
+            linewidth: thickness,
+            fog: true,
+            transparent: opacity != 1,
+            opacity:opacity,
+            linecap: "round",
+            linejoin: "round",
+        }
+    );
+
+    const group = new THREE.Object3D()
+
+    this.traverse(function(node) { 
+        if (node instanceof THREE.Mesh) { 
+            //const faces = node.geometry.faces
+            const edges = new THREE.EdgesGeometry( node.geometry );
+            const line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0xffffff } ) );
+            group.add(line)
+        }
+    })
+
+    return group
 }
 
 
@@ -123,6 +153,7 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
         }
     );
     
+    /*
     const sharedMat = new THREE.LineBasicMaterial( 
         {
             color: 0x0000ff, 
@@ -132,7 +163,9 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
             opacity:.5,
         }
     );
+    */
     
+    /*
     const normalMat = new THREE.LineBasicMaterial( 
         {
             color: 0xffff00, 
@@ -142,6 +175,7 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
             opacity: 1,
         }
     );
+    */
 
     const newGeo = new THREE.Geometry();
     const newVerts = newGeo.vertices
@@ -203,9 +237,14 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
     });
             
     console.log("allVerts = ", allVerts.length)
-    console.log("lines = ", allVerts.length/2)
+    console.log("full line count assuming no shared vertices = ", allVerts.length/2)
+    console.log("now we need to trim to only the lines we want to be visible")
     
-    for (let i = 0; i < allVerts.length; i +=2) {           
+    // this code assumes the vertices are arranged like?
+    // [traingle1PointA, traingle1PointB, traingle1PointC, traingle2PointA, traingle2PointB, ...]
+    // That is, no shared vertices?
+
+    for (let i = 0; i < allVerts.length; i += 2) {           
         const a = allVerts[i]
         const b = allVerts[i+1]
 
@@ -248,6 +287,8 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
     //newObj.position.copy(this.position)
     //newObj.scale.copy(this.scale)
     //newObj.rotation.copy(this.rotation)
+
+
 
     return newObj
 }

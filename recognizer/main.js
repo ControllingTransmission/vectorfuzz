@@ -117,8 +117,10 @@ class App extends BaseObject {
         this.scene().add(this.spotlight());    
         this.spotlight().target = this.mainObject()
 
-        this.setupTestObject()                
-        this.loadModel("Recognizer")
+        this.setupTestSquare()
+        //this.setupTestObject()     
+        //this.loadModel("Hg_carrier")           
+        //this.loadModel("Recognizer")
 
         this.setupFloor()
         this.setupRenderer()
@@ -137,6 +139,15 @@ class App extends BaseObject {
         this.setContainer(document.createElement("div"))
         document.body.appendChild(this.container());
         this.container().appendChild( this.renderer().domElement );
+    }
+
+    setupTestSquare() {
+        // square
+        var geometry = new THREE.PlaneGeometry( 200, 200, 1, 1);
+        var material = new THREE.MeshBasicMaterial( {color: 0x000000, side: THREE.DoubleSide} );
+        var plane = new THREE.Mesh( geometry, material );
+        plane.addOutline()
+        this.mainObject().add( plane );
     }
 
     setupTestObject() {
@@ -173,8 +184,6 @@ class App extends BaseObject {
         const floorGeometry = new THREE.CubeGeometry(100000,.5,100000);
         //var floorMaterial = new THREE.MeshLambertMaterial({ color: 0x3d518b });
         //var floor = new THREE.Mesh(floorGeometry, floorMaterial);
-
-
         //var floorGeometry = new THREE.PlaneBufferGeometry( 20000, 20000, 30, 30 );
         var material = new THREE.MeshLambertMaterial( {
             //color: 0x0000ff, 
@@ -220,7 +229,6 @@ class App extends BaseObject {
         const loader = new THREE.OBJMTLLoader();
         //const loader = new THREE.ObjectLoader();
         loader.load("models/" + modelName + ".obj", "models/" + modelName +".mtl");    
-        //loader.load("models/Hg_carrier.obj", "models/Hg_carrier.mtl");    
         loader.addEventListener("load", (event) => { this.didFinishLoadModel(event) } );
     }
 
@@ -243,30 +251,35 @@ class App extends BaseObject {
 
         this.mainObject().add(object);
         
-        this.spotlight().target = object
         const ms = 100 / this.mainObject().radius()
         this.mainObject().scale.set(ms, ms, ms)
+
+        this.spotlight().target = object
+    }
+
+    updateCamera() {
+        const speed = 1 / 500
+        //this.camera().position.y += .01
+        const r = this.mainObject().radius() * 15
+        this.camera().position.x = r * Math.cos(speed * this.time())
+        this.camera().position.y = this.mainObject().radius() * 20 + r * Math.cos(speed * this.time() * 1.5)
+        this.camera().position.z = r * Math.sin(speed * this.time())
+        
+        //this.mainObject().rotation.y += .05
+        
+        const p = this.mainObject().position.clone()
+        //p.y *= 6
+        this.camera().lookAt(p)
     }
 
     render() {
         if (this.mainObject()) {
             this.setTime(this.time() + 6)
-            const speed = 1 / 500
-            //this.camera().position.y += .01
-            const r = this.mainObject().radius() * 15
-            this.camera().position.x = r * Math.cos(speed * this.time())
-            this.camera().position.y = this.mainObject().radius() * 20 + r * Math.cos(speed * this.time() * 1.5)
-            this.camera().position.z = r * Math.sin(speed * this.time())
-            
-            //this.mainObject().rotation.y += .05
-            
-            const p = this.mainObject().position.clone()
-            p.y *= 6
-            this.camera().lookAt(p)
-            
+
+            this.updateCamera()
+
             if (this.mainObject().step) {
                 this.mainObject().step()
-
                 /*
                 this.mainObject().step = function() {
                     this.rotation.x += .005
