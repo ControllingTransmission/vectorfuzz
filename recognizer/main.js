@@ -11,289 +11,6 @@ var windowHalfY = window.innerHeight / 2;
 
 var time = 0
     
-function Object_makeDoubleSided(self)
-{
-    //self.material.side = THREE.DoubleSide;
-    
-        self.traverse( function( node ) { 
-        if ( node instanceof THREE.Mesh ) { 
-            node.material.side = THREE.DoubleSide;
-        } 
-    } );
-}
-
-function Object_castShadow(self)
-{
-    self.castShadow = true;
-    //self.receiveShadow = true;
-    
-    self.traverse( function( node ) 
-    { 
-        if ( node instanceof THREE.Mesh ) 
-        { 
-            node.castShadow = true; 
-            //node.receiveShadow = true; 
-        } 
-    } );
-}
-
-function Vector3_equals(v1, v2)
-{
-    //return v1.x == v2.x && v1.y == v2.y && v1.z == v2.z;
-    var d = 0.001
-    return Math.abs(v1.x - v2.x) < d && Math.abs(v1.y - v2.y) < d && Math.abs(v1.z - v2.z) < d
-}
-
-function LinePieces_hasSharedVerts(vertices, v1, v2, ignoreIndex)
-{  
-    var count = 0
-    var matchLine = null;
-    
-    for (var i = 0; i < vertices.length; i += 2)
-    {
-        if (i == ignoreIndex)
-        {
-            continue;
-        }
-            
-        var l1 = vertices[i]
-        var l2 = vertices[i+1]
-        
-        //if (l1.equals(v1) && l2.equals(v2)) 
-        if (Vector3_equals(l1, v1) && Vector3_equals(l2, v2)) 
-        { 
-                //console.log("match points of line ",  i/2)
-
-            if (Vector3_equals(v1.face.normal, l1.face.normal))
-            {
-                    count ++
-                    matchLine = i/2
-            }
-            else
-            {
-                //   console.log("but normals don't match")
-            }
-        }
-        //if (l2.equals(v1) && l1.equals(v2)) 
-        if (Vector3_equals(l1, v2) && Vector3_equals(l2, v1)) 
-        { 
-//                     console.log("match points of line ",  i/2)
-
-            if (Vector3_equals(v1.face.normal, l1.face.normal))
-            {
-                count ++
-                matchLine = i/2
-            }
-            else
-            {
-                // console.log("but normals don't match")
-            }
-        }
-    }
-    
-    return count != 0
-}
-        
-function Object_asLineObject(self, color, thickness, opacity)
-{   
-    var newMat = new THREE.LineBasicMaterial( 
-        {
-            color: color, 
-            //color: 0xff5500, 
-            //color: 0x0055ff, 
-            linewidth: thickness,
-            fog: true,
-            transparent: opacity != 1,
-            opacity:opacity,
-        }
-    );
-    
-    var sharedMat = new THREE.LineBasicMaterial( 
-        {
-            color: 0x0000ff, 
-            linewidth: 4,
-            fog: true,
-            transparent: true,
-            opacity:.5,
-        }
-    );
-    
-    var normalMat = new THREE.LineBasicMaterial( 
-        {
-            color: 0xffff00, 
-            linewidth: 6,
-            fog: true,
-            transparent: true,
-            opacity: 1,
-        }
-    );
-
-    var newGeo = new THREE.Geometry();
-    var newVerts = newGeo.vertices
-    
-    var sharedGeo = new THREE.Geometry();
-    var sharedVerts = sharedGeo.vertices
-    
-    var normalGeo = new THREE.Geometry();
-    var normals = normalGeo.vertices
-        
-    var allVerts = []
-    self.traverse(function(node) 
-        { 
-            if (node instanceof THREE.Mesh) 
-            { 
-                var faces = node.geometry.faces
-                
-                node.geometry.computeFaceNormals()
-                                        
-                var verts = node.geometry.vertices
-                
-                for (var i = 0; i <  faces.length; i ++)
-                //for (var i = 0; i <  2; i ++)
-                {
-                    var f = faces[i]
-                    
-                    var a = new THREE.Vector3().copy(verts[f.a])
-                    var b = new THREE.Vector3().copy(verts[f.b])
-                    var c = new THREE.Vector3().copy(verts[f.c])
-/*                            
-                    var a = verts[f.a].clone()
-                    var b = verts[f.b].clone()
-                    var c = verts[f.c].clone()
-*/                                                     
-                    a.face = f
-                    b.face = f
-                    c.face = f
-                    
-                    allVerts.push(a)
-                    allVerts.push(b)
-
-                    allVerts.push(b)
-                    allVerts.push(c)
-                
-                    allVerts.push(c)
-                    allVerts.push(a)
-                /*
-                    var ns = 5
-                    var n = f.normal.clone().multiplyScalar(ns)
-                    normals.push(a)
-                    normals.push(a.clone().add(n))
-                    
-                    normals.push(b)
-                    normals.push(b.clone().add(n))
-                    
-                    normals.push(c)
-                    normals.push(c.clone().add(n))
-                    */
-                }
-            } 
-        } 
-    );
-            
-    console.log("allVerts = ", allVerts.length)
-    console.log("lines = ", allVerts.length/2)
-    
-    for (var i = 0; i < allVerts.length; i +=2)
-    {           
-        var a = allVerts[i]
-        var b = allVerts[i+1]
-/*
-        console.log("line ", i/2)
-        console.log("  a ", a)
-        console.log("  b ", b)
-        console.log("  a.norm ", a.face.normal)
-*/
-        if (LinePieces_hasSharedVerts(allVerts, a, b, i))
-        {
-            sharedVerts.push(a)
-            sharedVerts.push(b)  
-        }
-        else
-        {
-            newVerts.push(a)
-            newVerts.push(b)
-            
-            /*
-            var ns = -10
-            var n = a.face.normal.clone().multiplyScalar(ns)
-            normals.push(a)
-            normals.push(a.clone().sub(n))
-            
-            var n = b.face.normal.clone().multiplyScalar(ns)
-            normals.push(b)
-            normals.push(b.clone().sub(n))
-            */
-        }
-        
-    } 
-    
-    newObj =  new THREE.Line( newGeo, newMat, THREE.LinePieces );
-
-    var out = new THREE.Object3D();
-    out.add(newObj)
-                
-    // console.log("newVerts = ", newVerts.length)
-    //console.log("sharedVerts = ", sharedVerts.length)
-    //out.add(new THREE.Line(sharedGeo, sharedMat, THREE.LinePieces ))
-    //out.add(new THREE.Line(normalGeo, normalMat, THREE.LinePieces ))
-    
-    //newObj.position.copy(self.position)
-    //newObj.scale.copy(self.scale)
-    //newObj.rotation.copy(self.rotation)
-
-    return out
-}
-
-function Object_recursiveSetLineWidth(self, width)
-{           
-    self.traverse( function( node ) 
-    { 
-        if ( node instanceof THREE.Mesh ) 
-        { 
-            node.material.linewidth =  4
-            node.needsUpdate = true
-        } 
-    } );
-}
-        
-function Object_recursiveSetOpacity(self, opacity)
-{           
-    self.traverse( function( node ) 
-    { 
-        if ( node instanceof THREE.Mesh ) 
-        { 
-            if (opacity == 1)
-            {
-                node.material.transparent = false
-            }
-            else
-            {
-                node.material.transparent = true
-                node.material.opacity = opacity
-            }
-
-            node.needsUpdate = true
-        } 
-    } );
-}
-
-function Object_recursiveSetColor(self, hexColor)
-{           
-    self.traverse( function( node ) 
-    { 
-        if ( node instanceof THREE.Mesh ) 
-        { 
-            node.material.color.setHex(hexColor)
-            /*
-            if (node.material.ambient)
-            {
-                node.material.ambient.setHex(hexColor)
-            }
-            */
-            node.needsUpdate = true
-        } 
-    } );
-}
 
 function SpotLight_new()
 {
@@ -336,8 +53,7 @@ function init()
     mainObject.position.set(0,152,0)
     scene.add(mainObject)
     
-    mainObject.calcRadius = function ()
-    {
+    mainObject.calcRadius = function () {
         /*
         //this.computeBoundingBox()
         const box = this.boundingBox()
@@ -353,15 +69,14 @@ function init()
     }
 
     /*
-    mainObject.step = function()
-    {
+    mainObject.step = function() {
         var self = this
         self.rotation.x += .005
         self.rotation.y += .005   
     }
     */
     
-        carrierSpotlight.target = mainObject
+    carrierSpotlight.target = mainObject
 
 
     {
@@ -373,13 +88,20 @@ function init()
 
         var material = new THREE.MeshPhongMaterial( { ambient: 0x111111, color: 0xdddddd, specular: 0x333300, shininess: 30, shading: THREE.FlatShading } ) 
 
-        var object = new THREE.Mesh( geometry, material );
+        //console.log("THREE.Mesh = ", THREE.Mesh)
+        //console.log("THREE.Mesh.prototype.castShadow = ", THREE.Mesh.prototype.castShadow)
+        
+        var object = new THREE.Mesh(geometry, material);
         object.position.set(0,0,0)
         mainObject.add( object );
         
-        Object_castShadow(object)
-        Object_recursiveSetColor(object, 0x111111)
-        objectOutline = Object_asLineObject(object)
+        object.makeCastShadow()
+        //Object_castShadow(object)
+
+        object.recursiveSetColor(0x111111)
+        objectOutline = object.asLineObject()
+
+
         var s = 1.005
         objectOutline.scale.set(s, s, s)
         //mainObject.add( objectOutline );
@@ -389,92 +111,95 @@ function init()
 
     console.log("loading...")
     
-    var loader = new THREE.OBJMTLLoader();
-    //var loader = new THREE.ObjectLoader();
+    const loader = new THREE.OBJMTLLoader();
+    //const loader = new THREE.ObjectLoader();
     loader.load('models/Recognizer.obj', 'models/Recognizer.mtl');    
     loader.addEventListener( 'load', finishedObjLoad );
        
     function finishedObjLoad( event ) {
-            const object = event.content
-            console.log("loaded")
-            // Object_castShadow(object)
-            //Object_makeDoubleSided(object)
-            
-
-            // Object_recursiveSetColor(object, 0x004400)
-            Object_recursiveSetColor(object, 0x552222)
-            
-            carrier = new THREE.Object3D();
-            carrier.add(object)
-            
-            //var s = 1/10
-            //carrier.scale.set(s, s, s)
-            
-            carrierOutline = Object_asLineObject(object, 0xff6600, 3, 1)
-            //var s = 1.001
-            //carrierOutline.scale.set(s, s, s);
-            carrier.add(carrierOutline)
-            
-            mainObject.calcRadius()
-            
-            //carrier.scale.set(s,s,s)
-
-            /*
-            var glow = Object_asLineObject(object, 0xffff00, 20, .1)
-            Object_recursiveSetColor(glow, 0xffffff)
-            //Object_recursiveSetOpacity(glow, .5)
-            //Object_recursiveSetLineWidth(glow, 10)
-                glow.scale.set(s, s, s);
-                carrier.add(glow)
-                */
-            
-            /*
-            var m = carrierOutline.children[0].material
-            m.wireframeLinewidth = 50
-            m.needsUpdate = true
-            */
-            
-
-            mainObject.add( carrier );
-            
-            carrierSpotlight.target = carrier
-            
-            carrier.maxz = 1500
-            carrier.minz = -1500
-            //carrier.position.set(0,3,0);
-
-            //carrier.position.set(0,300,0);
-
-            mainObject.calcRadius()
-            var s = 100/mainObject.radius
-            mainObject.scale.set(s,s,s)
-            console.log("carrier loaded radius: ", mainObject.radius)
-        }
-
+        const object = event.content
+        console.log("loaded")
+        // Object_castShadow(object)
+        //Object_makeDoubleSided(object)
         
-{
-    var floorGeometry = new THREE.CubeGeometry(100000,.5,100000);
-    //var floorMaterial = new THREE.MeshLambertMaterial({ color: 0x3d518b });
-    //var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+
+        //object.recursiveSetColor(0x004400)
+        object.recursiveSetColor(0x552222)
+        
+        carrier = new THREE.Object3D();
+        carrier.add(object)
+        
+        //var s = 1/10
+        //carrier.scale.set(s, s, s)
+        
+        carrierOutline = object.asLineObject(0xff6600, 3, 1)
+        //var s = 1.001
+        //carrierOutline.scale.set(s, s, s);
+        carrier.add(carrierOutline)
+        
+        mainObject.calcRadius()
+        
+        //carrier.scale.set(s,s,s)
+
+        /*
+        var glow = object.asLineObject(0xffff00, 20, .1)
+        glow.recursiveSetColor(0xffffff)
+        //glow.recursiveSetOpacity(.5)
+        //glow.recursiveSetLineWidth(10)
+            glow.scale.set(s, s, s);
+            carrier.add(glow)
+        */
+        
+        /*
+        var m = carrierOutline.children[0].material
+        m.wireframeLinewidth = 50
+        m.needsUpdate = true
+        */
+        
+
+        mainObject.add( carrier );
+        
+        carrierSpotlight.target = carrier
+        
+        carrier.maxz = 1500
+        carrier.minz = -1500
+        //carrier.position.set(0,3,0);
+
+        //carrier.position.set(0,300,0);
+
+        mainObject.calcRadius()
+        var s = 100/mainObject.radius
+        mainObject.scale.set(s,s,s)
+        console.log("carrier loaded radius: ", mainObject.radius)
+    }
+
+    
+    // add the floor
+    {
+        var floorGeometry = new THREE.CubeGeometry(100000,.5,100000);
+        //var floorMaterial = new THREE.MeshLambertMaterial({ color: 0x3d518b });
+        //var floor = new THREE.Mesh(floorGeometry, floorMaterial);
 
 
-    //var floorGeometry = new THREE.PlaneBufferGeometry( 20000, 20000, 30, 30 );
-    var material = new THREE.MeshLambertMaterial( {
-        //color: 0x0000ff, 
-        ambient: 0x0000ff, 
-        wireframe: false, 
-        //wireframeLinewidth: 4,
-        //fog:true,
-        side: THREE.DoubleSide
-        } );
-    var floor = new THREE.Mesh( floorGeometry, material );
-    //floor.rotation.x = 3.14159/2
-    floor.position.x = 0;
-    floor.position.y = 0;
-    floor.position.z = 0;
-    floor.receiveShadow = true;
-    scene.add( floor );
-}
+        //var floorGeometry = new THREE.PlaneBufferGeometry( 20000, 20000, 30, 30 );
+        var material = new THREE.MeshLambertMaterial( {
+            //color: 0x0000ff, 
+            ambient: 0x0000ff, 
+            wireframe: false, 
+            //wireframeLinewidth: 4,
+            //fog:true,
+            side: THREE.DoubleSide
+            } );
+        var floor = new THREE.Mesh( floorGeometry, material );
+        //floor.rotation.x = 3.14159/2
+        floor.position.x = 0;
+        floor.position.y = 0;
+        floor.position.z = 0;
+        floor.receiveShadow = true;
+        scene.add( floor );
+    }
+
+
     {
         var floorWireGeometry = new THREE.PlaneGeometry( 20000, 20000, 30, 30 );
         var material = new THREE.MeshLambertMaterial( {
