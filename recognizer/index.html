@@ -13,7 +13,7 @@
       text-align:center;
       font-weight: bold;
 
-      background-color: white;
+      background-color: black;
       margin: 0px;
       overflow: hidden;
 
@@ -29,12 +29,24 @@
   </style>
 </head>
 
+
 <body>
-<div id ="container"> </div>
+<canvas id="canvas" style="min-width:100%; min-height:100%; max-width:100%; max-height:100%;"></canvas>
+
 
 <script type="text/javascript" src="three.js-dev/build/three.js"></script>
-<script type="text/javascript" src ="three.js-dev/examples/js/loaders/OBJLoader.js"> </script>
-<script type="text/javascript" src ="three.js-dev/examples/js/loaders/MTLLoader.js"> </script>
+<script type="text/javascript" src="three.js-dev/examples/js/loaders/OBJLoader.js"> </script>
+<script type="text/javascript" src="three.js-dev/examples/js/loaders/MTLLoader.js"> </script>
+
+<script type="text/javascript" src="three.js-dev/examples/js/postprocessing/EffectComposer.js"></script>
+<script type="text/javascript" src="three.js-dev/examples/js/postprocessing/ShaderPass.js"></script>
+<script type="text/javascript" src="three.js-dev/examples/js/postprocessing/RenderPass.js"></script>
+<script type="text/javascript" src="three.js-dev/examples/js/postprocessing/MaskPass.js"></script>
+<script type="text/javascript" src="three.js-dev/examples/js/shaders/CopyShader.js"></script>
+<!-- 
+<script type="text/javascript" src="three.js-dev/examples/js/shaders/ThickLineShader.js"></script>
+-->
+<script type="text/javascript" src="external_libraries/ThickLineShader.js"></script>
 <!--
 <script type="text/javascript" src="three.js/build/three.js"></script>
 <script type="text/javascript" src ="three.js/examples/js/loaders/OBJMTLLoader.js"> </script>
@@ -54,10 +66,16 @@
 <script type="text/javascript" src ="extra/LineSegments.js"> </script>
 <script type="text/javascript" src ="extra/EdgesGeometry.js"> </script>
 -->
+<script type="text/javascript" src ="external_libraries/csg.js-master/csg.js"> </script>
+<!--
+<script type="text/javascript" src ="external_libraries/extrude-polyline-master/vecutil.js"> </script>
+<script type="text/javascript" src ="external_libraries/extrude-polyline-master/index.js"> </script>
+-->
 <script type="text/javascript" src ="Object3D-extras.js"> </script>
 <script type="text/javascript" src ="main.js"> </script>
 
 <script>
+  /*import vec from external_libraries/gl-vec2-master/index.js*/
 </script>
 
 <!--

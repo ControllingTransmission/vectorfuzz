@@ -203,6 +203,24 @@ Obj3d.asLineObject = function(color, thickness, opacity) {
             linejoin: "round",
         }
     );
+
+Obj3d.aTubeObject = function() {
+    /*
+    const THREE = require('three');
+    const extrudePolyline = require('extrude-polyline');
+    const Complex = require('three-simplicial-complex')(THREE);
+    */
+
+    const vertices = [[0, 0], [10, 0], [10, 10], [20, 10], [30, 00]];
+    const geometry = thickPolyline(vertices, 10);
+
+    const material = new THREE.MeshBasicMaterial({
+        color: 0x009900,
+        side: THREE.DoubleSide
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    return mesh
+}
     
     /*
     const sharedMat = new THREE.LineBasicMaterial( 
@@ -408,5 +426,42 @@ Obj3d.recursiveSetColor = function(hexColor) {
             */
         } 
     } );
+}
+
+
+
+function aTubeObject() {
+    /*
+    const THREE = require('three');
+    const extrudePolyline = require('extrude-polyline');
+    const Complex = require('three-simplicial-complex')(THREE);
+    */
+
+    const vertices = [[0, 0], [10, 0], [10, 10], [20, 10], [30, 00]];
+    const geometry = thickPolyline(vertices, 10);
+
+    const material = new THREE.MeshBasicMaterial({
+        color: 0x009900,
+        side: THREE.DoubleSide
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    return mesh
+}
+
+function thickPolyline(points, lineWidth) {
+    const simplicialComplex = extrudePolyline({
+        // Adjust to taste!
+        thickness: lineWidth,
+        cap: 'square',  // or 'butt'
+        join: 'bevel',  // or 'miter',
+        miterLimit: 10,
+    }).build(points);
+
+    // Add a z-coordinate.
+    for (const position of simplicialComplex.positions) {
+        position[2] = 0;
+    }
+
+    return Complex(simplicialComplex);
 }
 

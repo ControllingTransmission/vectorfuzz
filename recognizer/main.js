@@ -130,6 +130,7 @@ class App extends BaseObject {
         this.newSlot("camera", null);
         this.newSlot("scene", null);
         this.newSlot("renderer", null);
+        this.newSlot("composer", null);
 
         this.newSlot("time", null);
         this.newSlot("mainObject", null);
@@ -177,29 +178,97 @@ class App extends BaseObject {
         this.scene().add(this.spotlight());    
         this.spotlight().target = this.mainObject()
 
+        this.setupComposer()
+        //this.setupCSSRenderer()
+        //this.setupRenderer()
+        //this.setupCanvasRenderer()
+
+        // objects
+
         //this.setupTestSquare()
-        this.setupTestObject()     
+        //this.setupTestObject()    
+        
+        //const tube = aTubeObject()
+        //this.scene().add(tube)
+
         //this.loadModel("Hg_carrier")           
         //this.loadModel("carrier")           
         //this.loadModel("Recognizer")
 
         this.setupFloor()
-        this.setupRenderer()
+
 
         window.addEventListener("resize", (event) => { this.onWindowResize(event) }, false);
         this.onWindowResize()
     }
 
-    setupRenderer() {
-        this.setRenderer(new THREE.WebGLRenderer());
+    setupComposer() {
+        this.setupRenderer()
+
+        var targetOpts = { 	
+            minFilter: THREE.LinearFilter,
+            magFilter: THREE.NearestFilter,
+            format: THREE.RGBFormat
+        };
+    
+        var target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, targetOpts);
+        var composer = new THREE.EffectComposer( this.renderer(), target );
+    
+        // 1st render pass: render regular scene
+        var renderPass = new THREE.RenderPass( this.scene(), this.camera() );
+        
+        // 2nd render pass: apply line thickness effect to the wireframe(horizontal and vertical)
+        const lineShader = new THREE.ShaderPass( THREE.ThickLineShader )
+        lineShader.uniforms.totalWidth.value = 10;
+        lineShader.uniforms.totalHeight.value = 10;
+        
+    
+        // 3nd render pass: apply line thickness diagonally (45 degrees)
+        // diagLineShader = new THREE.ShaderPass( THREE.ThickLineShader )
+        // diagLineShader.uniforms.totalWidth.value = width;
+        // diagLineShader.uniforms.totalHeight.value = height;
+        // diagLineShader.uniforms.diagOffset.value = 1;
+    
+        composer.addPass( renderPass );
+        composer.addPass( lineShader );
+        // composer.addPass( diagLineShader );
+    
+        lineShader.renderToScreen = true;
+        lineShader.uniforms.edgeWidth.value = 10
+
+        this.setComposer(composer)   
+    }
+
+    setupRendererOptions() {
         this.renderer().setClearColor(0x000000, 1.0);
         this.renderer().setSize(window.innerWidth, window.innerHeight);
         this.renderer().shadowMap.enabled = true;
         this.renderer().shadowMapSoft = true;
+    }
 
+    setupCanvasRenderer() {
+        const canvas = document.getElementById("canvas");
+        this.setContainer(canvas)
+        this.setRenderer(new THREE.WebGLRenderer({ canvas: canvas, antialias: true }));
+        this.setupRendererOptions()
+    }
+
+    setupRenderer() {
+        const renderer = new THREE.WebGLRenderer();
+        this.setRenderer(renderer);
+        this.setupRendererOptions()
+
+        const container = document.getElementById("container");
         this.setContainer(document.createElement("div"))
         document.body.appendChild(this.container());
         this.container().appendChild( this.renderer().domElement );
+    }
+
+    setupCSSRenderer() {
+        const renderer = new THREE.CSS3DRenderer();
+        this.setRenderer(renderer);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
     }
 
     setupTestSquare() {
@@ -221,7 +290,7 @@ class App extends BaseObject {
         //var geometry = new THREE.DodecahedronGeometry(100, 0)
 
         const material = new THREE.MeshPhongMaterial( { 
-                color: 0xdddddd, 
+                color: 0xffffff, 
                 specular: 0x333300, 
                 shininess: 30, 
                 flatShading: true
@@ -232,44 +301,60 @@ class App extends BaseObject {
 
         const object = new THREE.Mesh(geometry, material);
         object.position.set(0,0,0)
+        object.scale.multiplyScalar( 10 );
         group.add( object );
 
         const object2 = new THREE.Mesh(geometry, material);
         object2.position.set(5,0,0)
+        object2.scale.multiplyScalar( 1.01 );
         group.add( object2 );
 
-        group.recursiveSetColor(0x111111)
+        //group.recursiveSetColor(0x111111)
         group.recursiveSetOpacity(0)
 
-        group.addOutline()
+        //group.addOutline()
         this.scene().add( group );
     }
 
     setupFloor() {
         //this.setupFloorPlane()
-        this.setupFloorWire()
+        //this.setupFloorWire()
+        this.setupFloorLines()
+        //this.setupFloorGrid()
+
+        /*
+        for (let i = 0; i < 10; i ++) {
+            this.setupFloorGrid(i*30 + 1)
+        }
+        */
+    }
+
+    floorSize() {
+        return 10000
     }
 
     setupFloorPlane() {
-        //const floorGeometry = new THREE.CubeGeometry(100000, .5, 100000, 10, 10);
-        const floorGeometry = new THREE.PlaneGeometry( 2000, 2000, 1, 1);
+        const size = this.floorSize()
+        //const floorGeometry = new THREE.CubeGeometry(size, .5, size, 10, 10);
+        //const floorWireGeometry = new THREE.PlaneGeometry( size, size, 30, 30);
+        const floorGeometry = new THREE.PlaneGeometry( size, size, 1, 1);
         //var floorMaterial = new THREE.MeshLambertMaterial({ color: 0x3d518b });
         //var floor = new THREE.Mesh(floorGeometry, floorMaterial);
         //var floorGeometry = new THREE.PlaneBufferGeometry( 20000, 20000, 30, 30 );
         var material = new THREE.MeshLambertMaterial( {
-            //color: 0x0000ff, 
-            ambient: 0x0000ff, 
+            color: 0x0000ff, 
             wireframe: false, 
-            //wireframeLinewidth: 4,
-            //linewidth: 4,
             fog:true,
             side: THREE.DoubleSide
         } );
-        
+
+
+        //floor.recursiveSetColor(0x0000ff)
+
         const floor = new THREE.Mesh(floorGeometry, material);
         //floorWire.rotation.x = -Math.PI/2
 
-        //floor.rotation.x = Math.PI/2
+        floor.rotation.x = -Math.PI/2
         floor.position.x = 0;
         floor.position.y = 0;
         floor.position.z = 0;
@@ -277,30 +362,77 @@ class App extends BaseObject {
         this.scene().add( floor );
     }
 
+    setupFloorLines() {
+        /*
+        var geometry = new THREE.BoxGeometry(5,5,5);
+        var material = new THREE.MeshBasicMaterial({wireframe:true});
+    
+        var cube = new THREE.Mesh( geometry, material );
+        cube.position.set(0, 0, -10);
+        cube.rotation.x = Math.PI / 4;
+        cube.rotation.y = Math.PI / 4;
+        this.scene().add( cube );
+
+        */
+
+        
+        const size = this.floorSize()
+        const geometry = new THREE.Geometry();
+        geometry.vertices.push(new THREE.Vector3( - size, 0, 0 ) );
+        geometry.vertices.push(new THREE.Vector3( size, 0, 0 ) );
+
+        //const linesMaterial = new THREE.LineBasicMaterial( { color: 0x787878, opacity: .2, linewidth: 10 } );
+	    var linesMaterial = new THREE.MeshBasicMaterial({wireframe:true});
+
+        for (let i = 0; i <= 30; i ++ ) {
+
+            let line = new THREE.Line( geometry, linesMaterial );
+            line.position.z = ( i * 50 ) - 500;
+            line.position.y = 2
+            this.scene().add( line );
+
+            line = new THREE.Line( geometry, linesMaterial );
+            line.position.x = ( i * 50 ) - 500;
+            line.rotation.y = 90 * Math.PI / 180;
+            line.position.y = 2
+            //this.scene().add( line );
+        }
+        
+    }
+
+    setupFloorGrid(dy) {
+        if (!dy) { dy = 0; }
+        const size = this.floorSize()
+        const grid = new THREE.GridHelper( size, 30, 0xffffff, 0xffffff  );
+        //grid.scale.multiplyScalar(0.1)
+        //grid.setColors( 0xffffff, 0xffffff );
+        //grid.rotation.z += -Math.PI/2
+        grid.position.y += dy
+        this.scene().add( grid );
+        grid.recursiveSetLineWidth(10)
+    }
+
     setupFloorWire() {
         const floorWireGeometry = new THREE.PlaneGeometry( 10000, 10000, 30, 30);
         
-        const material2 = new THREE.LineBasicMaterial( 
-            {
-                color: 0xffffff, 
-                linewidth: 1,
-                fog:true,
-                //transparent: true,
-                //opacity:1,
-            }
-        );
+        const lineMaterial = new THREE.LineBasicMaterial( {
+            color: 0xffffff,
+            linewidth: 10,
+            linecap: 'round', //ignored by WebGLRenderer
+            linejoin:  'round' //ignored by WebGLRenderer
+        } );
 
-        const material = new THREE.MeshLambertMaterial( {
+        const meshMaterial = new THREE.MeshLambertMaterial( {
             color: 0xffffff, 
             wireframe: true, 
             wireframeLinewidth: 10,
             fog: true,
         } );
     
-        const floorWire = new THREE.Mesh( floorWireGeometry, material);
+        const floorWire = new THREE.Mesh( floorWireGeometry, lineMaterial);
         //floorWire.rotation.z += -Math.PI/4
         floorWire.rotation.x = -Math.PI/2
-        floorWire.position.y += 0.00
+        floorWire.position.y += 0.01
         floorWire.receiveShadow = true;
         this.scene().add( floorWire );
     }
@@ -377,7 +509,17 @@ class App extends BaseObject {
         this.setTime(this.time() + 2)
 
         this.updateCamera()
-        this.renderer().render(this.scene(), this.camera());
+
+        try {
+            if (this.composer()) {
+                this.composer().render()
+            } else {
+                this.renderer().render(this.scene(), this.camera());
+            } 
+        } catch(e) {
+            console.log("render error: ", e)
+            console.log("-----------------")
+        }
     }
 
 
@@ -387,13 +529,19 @@ class App extends BaseObject {
     }
 
     onWindowResize() {
-        const f = 1
-        this.camera().aspect = window.innerWidth / window.innerHeight;
+        //const f = 1
+
+        /*
+        // need this if it's a canvas
+        const container = this.container()
+        container.width  = container.clientWidth;
+        container.height = container.clientHeight;
+        */
+
+        const w = window.innerWidth
+        const h = window.innerHeight
+        this.camera().aspect = w / h;
         this.camera().updateProjectionMatrix();
-        //const w = Math.floor(window.innerWidth / f);
-        //const h = Math.floor(window.innerHeight / f);
-        const w = window.innerWidth  / f;
-        const h = window.innerHeight / f;
         this.renderer().setSize(w, h);
     }
 
