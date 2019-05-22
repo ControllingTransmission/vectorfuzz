@@ -62,7 +62,7 @@
 				//
 
 				var vertices = [];
-				var divisions = 4;
+				var divisions = 20;
 
 				for ( var i = 0; i <= divisions; i ++ ) {
 
@@ -80,20 +80,20 @@
 
 				//
 
-				for ( var i = 1; i <= 10; i ++ ) {
+				for ( var i = 1; i <= 100; i ++ ) {
 					var colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
 					var color = colors[Math.floor(Math.random() * colors.length)]
 					var material = new THREE.LineBasicMaterial( {
 						color: color,
-						linewidth: 3,
-						opacity: 0.5
+						linewidth: 1,
+						opacity: 0.1,
 					} );
 					var line = new THREE.Line( geometry, material );
-					line.scale.setScalar( i / 3 );
+					line.scale.setScalar( i / 60 );
 					scene.add( line );
 
 				}
-
+/*
 				var material = new THREE.LineDashedMaterial( {
 					color: 'blue',
 					linewidth: 1,
@@ -103,6 +103,7 @@
 				var line = new THREE.Line( geometry, material );
 				line.scale.setScalar( 2 );
 				scene.add( line );
+				*/
 
 				//
 
