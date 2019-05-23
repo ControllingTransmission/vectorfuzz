@@ -16,9 +16,10 @@
       background-color: black;
       margin: 0px;
       overflow: hidden;
-
+/*
       -webkit-filter: blur(0.5px); 
       filter: blur(0.5px);
+      */
       border: none;
       outline: none;
       padding: 0px;
@@ -90,8 +91,23 @@
 document.getElementById("music").pause()
 document.getElementById("music").currentTime = 10000
 document.getElementById("music").play()
+
+2.5
 </script>
 -->
+
+<svg>
+    <defs>
+        <filter id="glow">
+            <feGaussianBlur stdDeviation="10" result="coloredBlur"/>
+            <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+  </svg>
+
 </body>
 
 </html>

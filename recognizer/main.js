@@ -257,6 +257,7 @@ class App extends BaseObject {
         this.setRenderer(renderer);
         document.body.appendChild( renderer.domElement );
         this.setContainer(renderer.domElement)
+        this.container().style.filter = "url(#glow);"
     }
 
     setupCanvasRenderer() {
@@ -532,7 +533,7 @@ class App extends BaseObject {
     }
 
     render() {
-        this.setTime(this.time() + 2)
+        this.setTime(this.time() + 10)
 
         this.updateCamera()
 
@@ -548,10 +549,28 @@ class App extends BaseObject {
         }
     }
 
+    addSVGFilters() {
+        const svgElements = document.getElementsByTagName("svg");
+        const pathElements = svgElements[1].getElementsByTagName("path");
+        //console.log("path elements count = ", pathElements.length)
+        
+        for (let i = 0; i < pathElements.length; i ++) {
+            const e = pathElements[i]
+            e.style.filter = "url(#glow)"
+            //console.log(i + " filter: " + e.style.filter)
+            //fill:none;stroke:rgb(255,102,0); fill-opacity: 0.5;stroke-width:2;stroke-linecap:round; 
+        }
+        
+    }
 
     animate() {
-        requestAnimationFrame( () => { this.animate() } );
+        //this.addSVGFilters()
+
+        //if (this.time() < 200) {
+            requestAnimationFrame( () => { this.animate() } );
+        //}
         this.render();
+        this.addSVGFilters()
     }
 
     onWindowResize() {
