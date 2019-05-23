@@ -158,8 +158,10 @@ class App extends BaseObject {
 
     setup() {            
 
-        this.setCamera(new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 20, 10000));
+        this.setCamera(new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 20, 100000));
         this.setScene(new THREE.Scene());
+        this.scene().background = new THREE.Color( 0, 0, 0 );
+
         this.scene().fog = new THREE.Fog( 0x000000, .1, 5000);
         //this.scene().fog = new THREE.Fog( 0x000000, 0, 15000);
         //this.setControls(new THREE.OrbitControls(this.camera()));
@@ -178,9 +180,10 @@ class App extends BaseObject {
         this.scene().add(this.spotlight());    
         this.spotlight().target = this.mainObject()
 
-        this.setupComposer()
+        //this.setupComposer()
         //this.setupCSSRenderer()
         //this.setupRenderer()
+        this.setupSVGRenderer()
         //this.setupCanvasRenderer()
 
         // objects
@@ -193,7 +196,7 @@ class App extends BaseObject {
 
         //this.loadModel("Hg_carrier")           
         //this.loadModel("carrier")           
-        //this.loadModel("Recognizer")
+        this.loadModel("Recognizer")
 
         this.setupFloor()
 
@@ -202,6 +205,7 @@ class App extends BaseObject {
         this.onWindowResize()
     }
 
+    /*
     setupComposer() {
         this.setupRenderer()
 
@@ -238,18 +242,28 @@ class App extends BaseObject {
 
         this.setComposer(composer)   
     }
+    */
 
     setupRendererOptions() {
+        this.renderer().setSize( window.innerWidth, window.innerHeight );
         this.renderer().setClearColor(0x000000, 1.0);
         this.renderer().setSize(window.innerWidth, window.innerHeight);
         this.renderer().shadowMap.enabled = true;
         this.renderer().shadowMapSoft = true;
     }
 
+    setupSVGRenderer() {
+        const renderer = new THREE.SVGRenderer();
+        this.setRenderer(renderer);
+        document.body.appendChild( renderer.domElement );
+        this.setContainer(renderer.domElement)
+    }
+
     setupCanvasRenderer() {
         const canvas = document.getElementById("canvas");
         this.setContainer(canvas)
-        this.setRenderer(new THREE.WebGLRenderer({ canvas: canvas, antialias: true }));
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        this.setRenderer(renderer);
         this.setupRendererOptions()
     }
 
@@ -267,9 +281,10 @@ class App extends BaseObject {
     setupCSSRenderer() {
         const renderer = new THREE.CSS3DRenderer();
         this.setRenderer(renderer);
-        renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
     }
+
+    //
 
     setupTestSquare() {
         // square
@@ -281,7 +296,7 @@ class App extends BaseObject {
     }
 
     setupTestObject() {
-        const geometry = new THREE.CubeGeometry(10,10,10);
+        const geometry = new THREE.CubeGeometry(100,100,100);
         //geometry.normalize()
         
         //var geometry = new THREE.IcosahedronGeometry(100, 0)
@@ -289,31 +304,41 @@ class App extends BaseObject {
         //var geometry = new THREE.TetrahedronGeometry(100, 0)
         //var geometry = new THREE.DodecahedronGeometry(100, 0)
 
+        /*
         const material = new THREE.MeshPhongMaterial( { 
                 color: 0xffffff, 
                 specular: 0x333300, 
                 shininess: 30, 
                 flatShading: true
         }) 
+        */
+
+        const material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.1, linewidth: 1 } );
+
 
         const group = new THREE.Object3D()
-        group.position.set(0,5,0)
+        group.position.set(0,0,0)
 
         const object = new THREE.Mesh(geometry, material);
         object.position.set(0,0,0)
-        object.scale.multiplyScalar( 10 );
+        object.scale.multiplyScalar( 0.8 );
         group.add( object );
 
+        /*
         const object2 = new THREE.Mesh(geometry, material);
         object2.position.set(5,0,0)
         object2.scale.multiplyScalar( 1.01 );
         group.add( object2 );
+        */
 
         //group.recursiveSetColor(0x111111)
-        group.recursiveSetOpacity(0)
+        //group.recursiveSetOpacity(0)
+        const outline = group.asEdgesObject(0x0000ff, 3, 3)
+        this.scene().add( outline );
+        this.scene().add( group );
 
         //group.addOutline()
-        this.scene().add( group );
+        //this.scene().add( group );
     }
 
     setupFloor() {
@@ -321,12 +346,6 @@ class App extends BaseObject {
         //this.setupFloorWire()
         this.setupFloorLines()
         //this.setupFloorGrid()
-
-        /*
-        for (let i = 0; i < 10; i ++) {
-            this.setupFloorGrid(i*30 + 1)
-        }
-        */
     }
 
     floorSize() {
@@ -378,23 +397,28 @@ class App extends BaseObject {
         
         const size = this.floorSize()
         const geometry = new THREE.Geometry();
-        geometry.vertices.push(new THREE.Vector3( - size, 0, 0 ) );
-        geometry.vertices.push(new THREE.Vector3( size, 0, 0 ) );
+        const f = 10
+        geometry.vertices.push(new THREE.Vector3(- f*size/2, 0, 0 ) );
+        geometry.vertices.push(new THREE.Vector3(  f*size/2, 0, 0 ) );
 
-        //const linesMaterial = new THREE.LineBasicMaterial( { color: 0x787878, opacity: .2, linewidth: 10 } );
-	    var linesMaterial = new THREE.MeshBasicMaterial({wireframe:true});
+        const linesMaterial = new THREE.LineBasicMaterial( { color: 0x222222, opacity: .2, linewidth: 3 } );
+	    //var linesMaterial = new THREE.MeshBasicMaterial({wireframe:true});
 
-        for (let i = 0; i <= 30; i ++ ) {
+        const max = 40
+        for (let i = -max/2; i <= max/2; i ++ ) {
+
+            //const mat1 = new THREE.LineBasicMaterial( { color:  rainbowColor(), opacity: 1, linewidth: 4 } );
+            //const mat2 = new THREE.LineBasicMaterial( { color:  rainbowColor(), opacity: 1, linewidth: 4 } );
 
             let line = new THREE.Line( geometry, linesMaterial );
-            line.position.z = ( i * 50 ) - 500;
-            line.position.y = 2
+            line.position.z = i * (size/max);
+            line.position.y = 10
             this.scene().add( line );
 
             line = new THREE.Line( geometry, linesMaterial );
-            line.position.x = ( i * 50 ) - 500;
+            line.position.x = i * (size/max);
             line.rotation.y = 90 * Math.PI / 180;
-            line.position.y = 2
+            line.position.y = 1
             //this.scene().add( line );
         }
         
@@ -429,7 +453,7 @@ class App extends BaseObject {
             fog: true,
         } );
     
-        const floorWire = new THREE.Mesh( floorWireGeometry, lineMaterial);
+        const floorWire = new THREE.Mesh( floorWireGeometry, meshMaterial);
         //floorWire.rotation.z += -Math.PI/4
         floorWire.rotation.x = -Math.PI/2
         floorWire.position.y += 0.01
@@ -442,13 +466,13 @@ class App extends BaseObject {
         //const loader = new THREE.OBJMTLLoader();
         const loader = new THREE.OBJLoader();
         //const loader = new THREE.ObjectLoader();
-        const callback = (event) => { this.didFinishLoadModel(event, modelName) };
+        const callback = (event) => { this.didLoadModel(event, modelName) };
         //loader.load("models/" + modelName + ".obj", "models/" + modelName +".mtl", callback, (event) => { this.didFinishLoadModel(event) });    
         loader.load("models/" + modelName + ".obj", callback);    
         //loader.addEventListener("load", callback );
     }
 
-    didFinishLoadModel(object, modelName) {
+    didLoadModel(object, modelName) {
         console.log("loaded '" + modelName + "'")
 
         //object.moveToOrigin()
@@ -464,7 +488,9 @@ class App extends BaseObject {
         object.addOutline(0xff6600, 6, 0.5)
         //object.addOutline(0xff6600, 10, .5) // glow
 
-        const outline = object.asEdgesObject(0xff6600, 10, .5)
+        //Points( geometry : Geometry, material : Material )
+
+        const outline = object.asEdgesObject(0xff6600, 2, .5)
         this.mainObject().add(outline);
 
         //this.mainObject().add(object);
@@ -483,12 +509,12 @@ class App extends BaseObject {
         const t = this.time()
         
         // the x-z horizon plane
-        const f = 4.5
+        const f = 6
         this.camera().position.x = f * r * Math.cos(speed * t)
         this.camera().position.z = f * r * Math.sin(speed * t)
         
         // y is height
-        this.camera().position.y = 1*r + 3 * r * Math.cos(speed * t * 0.5)
+        this.camera().position.y = 2*r + 0.5 * r * Math.cos(speed * t * 0.5)
        //this.camera().position.y = 3*r
 
         /*
@@ -500,7 +526,7 @@ class App extends BaseObject {
         //this.mainObject().rotation.y += .05
         
         const p = this.mainObject().position.clone()
-        p.y *= 1
+        p.y *= 2
         //const p = this.mainObject().centerPoint()
         this.camera().lookAt(p)
     }
@@ -556,3 +582,8 @@ window.onload = function() {
     app.run()
 }
 
+function rainbowColor() {
+    const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
+    const color = colors[Math.floor(Math.random() * colors.length)]
+    return color
+}
