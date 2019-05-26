@@ -5,18 +5,11 @@ import { BaseObject } from './BaseObject.js';
 import { Model } from './Model.js';
 
 class Models extends BaseObject {
-    shared() {
-        const name = this.type().toLowerCase()
-        if (!window[name]) {
-            window[name] = Models.clone()
-        }
-        return window[name]
-    }
 
     init() {
         super.init()
         this.newSlot("dict", {}); // name to Group of model
-        this.newSlot("isDebugging", true);
+        this.newSlot("isDebugging", false);
         this.preload()
     }
 

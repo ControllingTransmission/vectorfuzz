@@ -33,7 +33,7 @@ class Model extends BaseObject {
         }
         const outline = object.asEdgesObject(0xff6600, 4, .5)
         this.setObject(outline)
-        //window.app.spotlight().target = object
+        //App.shared().spotlight().target = object
         this.sendDidLoad()
     }
 

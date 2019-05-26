@@ -1,27 +1,26 @@
 "use strict"
 
 import { BaseObject } from './BaseObject.js';
+import { Grid } from './Grid.js';
+import { App } from './App.js';
 
 class Chunk extends BaseObject {
     init() {
         super.init()
         this.newSlot("grid", null);
         this.newSlot("key", null);
-        this.newSlot("point", null);
-        this.newSlot("objects", null);
+        this.newSlot("position", null);
+        this.newSlot("objects", []);
+    }
+
+    chunkSize() {
+        return Grid.shared().chunkSize()
     }
 
     generate() {
-        const k = this.currentGridPointName()
-        //console.log("generating chunk " + k)
-        let chunk = {}
-        chunk.key = k
-        chunk.position = this.currentGridPosition()
-        chunk.objects = []
-
-        const pos = this.currentGridPosition()
-        // add chunk objects
+        console.log("generating chunk " + this.key())
         
+        /*
         const lineCount = 10
         const chunkSize = this.chunkSize()
         for (let i = 0; i < 10; i ++) {
@@ -31,17 +30,18 @@ class Chunk extends BaseObject {
             chunk.objects.push(line)
             this.scene().add(line)
         }
-        
-
-        /*
-        const obj = this.newCube()
-        //const pos = this.currentGridPosition()
-        obj.position.z = pos.z + 6000 
-        chunk.objects.push(obj)
-        this.scene().add(obj)
         */
+        //const obj = Models.shared().objectNamed("Recognizer.obj")
 
-        return chunk
+        const obj = this.newCube()
+        const pos = this.position()
+
+        obj.position.x = pos.x
+        obj.position.y = pos.y
+        obj.position.z = pos.z + 6000
+
+        this.objects().push(obj)
+        App.shared().scene().add(obj)
     }
 
     newCube() {
@@ -54,25 +54,16 @@ class Chunk extends BaseObject {
         return outline
     }
 
-    retireGridPointsIfNeeded() {
-        const grid = this.grid()
-        for (let k in grid) {
-            if (grid.hasOwnProperty(k)) {
-                const chunk = grid[k]
-               this.checkChunk(chunk)
-            }
-          }
-    }
-
-    checkChunk(chunk) {
-        const maxDist = this.chunkSize()*3
-        const d = this.camera().position.distanceTo(chunk.position)
+    retireIfNeeded() {
+        const maxDist = this.chunkSize() * 100
+        const d = App.shared().camera().position.distanceTo(this.position())
         if (d > maxDist) {
+            console.log("removing chunk ", this.key())
             chunk.objects.forEach((obj) => {
-                this.scene().remove(obj)
+                App.shared().scene().remove(obj)
             })
-            delete this.grid()[chunk.key]
-            console.log("scene.children.length = ", this.scene().children.length)
+            delete Grid.shared().grid()[this.key()]
+            //console.log("scene.children.length = ", this.scene().children.length)
         }
     }
 

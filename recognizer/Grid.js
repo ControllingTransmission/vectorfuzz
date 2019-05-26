@@ -1,90 +1,99 @@
 "use strict"
 
 import { BaseObject } from './BaseObject.js';
+import { App } from './App.js';
+import { Chunk } from './Chunk.js';
+import { Models } from './Models.js';
+
+
+THREE.Vector3.prototype.key = function() {
+    return this.x + "," + this.y + "," + this.z
+}
+
+THREE.Vector3.prototype.surroundingPoints = function() {
+    const points = [];
+    for (let x = -1; x < 2; x++) {
+        for (let z = -1; z < 2; z++) {
+            //const isCenter = (x === 0 && z === 0);
+            //if (!isCenter) {
+                const point = new THREE.Vector3(this.x + x, this.y + 0, this.z + z);
+                points.push(point);
+            //}
+        }
+    }
+    return points;
+}
 
 class Grid extends BaseObject {
     init() {
         super.init()
         this.newSlot("chunks", null);
         this.newSlot("grid", {});
+        this.newSlot("chunkSize", 1000);
     }
 
     scene() {
-        return window.app.scene()
-    }
-
-    chunkSize() {
-        return 10000
+        return App.shared().scene()
     }
     
     // --- location ---
     camera() {
-        return window.app.camera()
+        return App.shared().camera()
     }
+
+    // --- points ---
 
     currentGridPoint() {
-        const p = this.camera().position
-        const gp = p.clone().multiplyScalar(1/this.chunkSize()).floor()
-        return gp
+        return this.gridPointForRealPoint(this.camera().position)
     }
 
-    currentGridPosition() {
-        const p = this.camera().position
-        const gp = p.clone().multiplyScalar(1/this.chunkSize()).floor().multiplyScalar(this.chunkSize())
-        return gp
+    gridPointForRealPoint(p) {
+        const cs = this.chunkSize()
+        return p.clone().multiplyScalar(1/cs).floor()
     }
 
-    currentGridPointName() {
-        const gp = this.currentGridPoint()
-        const name = gp.x + "@" + gp.y + "@" + gp.z 
-        return name
+    realPointForGridPoint(p) {
+        const cs = this.chunkSize()
+        return p.clone().multiplyScalar(cs)
     }
+
+    /*
+    keyForPoint(p) {
+        return p.x + "," + p.y + "," + p.z
+    }
+    */
 
     // --- update ---
 
     update() {
-        const k = this.currentGridPointName()
-        
-        this.retireGridPointsIfNeeded()
+        let gp = this.currentGridPoint()
+        //console.log("this.camera().position = ", this.camera().position)
+        //console.log("gp = ", gp.key())
+        //this.generateChunkForGridPointIfNeeded(gp)
 
-        if (!this.grid()[k]) {
-            this.grid()[k] = this.generateCurrentGridPoint()
-        }
+        gp.surroundingPoints().forEach((p) => {
+            this.generateChunkForGridPointIfNeeded(p)
+        })
+        //console.log("---")
+        this.retireGridPointsIfNeeded()
     }
 
-    generateCurrentGridPoint() {
-        const k = this.currentGridPointName()
-        //console.log("generating chunk " + k)
-        let chunk = {}
-        chunk.key = k
-        chunk.position = this.currentGridPosition()
-        chunk.objects = []
+    generateChunkForGridPointIfNeeded(gp) {
+        const k = gp.key()
+        if (!this.grid()[k]) {
+            this.grid()[k] = this.generateChunk(gp)
+        }  
+    }
 
-        const pos = this.currentGridPosition()
-        // add chunk objects
-        
-        const lineCount = 10
-        const chunkSize = this.chunkSize()
-        for (let i = 0; i < 10; i ++) {
-            const line = this.newFloorLine()
-            line.position.z = pos.z + 6000 + i * chunkSize / lineCount
-            //console.log("line.position.z = ", line.position.z)
-            chunk.objects.push(line)
-            this.scene().add(line)
-        }
-        
-
-        /*
-        const obj = this.newCube()
-        //const pos = this.currentGridPosition()
-        obj.position.z = pos.z + 6000 
-        chunk.objects.push(obj)
-        this.scene().add(obj)
-        */
-
+    generateChunk(gp) {
+        const k = gp.key()
+        const pos = this.realPointForGridPoint(gp)
+        const chunk = Chunk.clone()
+        chunk.setPosition(pos)
+        chunk.setKey(k)
+        chunk.generate()
         return chunk
     }
-
 
 
     retireGridPointsIfNeeded() {
@@ -92,37 +101,24 @@ class Grid extends BaseObject {
         for (let k in grid) {
             if (grid.hasOwnProperty(k)) {
                 const chunk = grid[k]
-               this.checkChunk(chunk)
+                chunk.retireIfNeeded()
             }
           }
-    }
-
-    checkChunk(chunk) {
-        const maxDist = this.chunkSize()*3
-        const d = this.camera().position.distanceTo(chunk.position)
-        if (d > maxDist) {
-            chunk.objects.forEach((obj) => {
-                this.scene().remove(obj)
-            })
-            delete this.grid()[chunk.key]
-            console.log("scene.children.length = ", this.scene().children.length)
-        }
     }
 
     // --- objects ---
 
     newCube() {
-        const size = this.chunkSize()/10
+        const size = 100
         const geometry = new THREE.CubeGeometry(size, size, size);
         const material = new THREE.LineBasicMaterial( { color: 0xff6600, opacity: 1, linewidth: 8 } );
         const object = new THREE.Mesh(geometry, material);
         const outline = object.asEdgesObject(0xff0000, 5, 1)
-
         return outline
     }
 
     floorSize() {
-        return 10000
+        return App.shared().floorSize()
     }
 
     newFloorLine() {

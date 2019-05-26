@@ -5,8 +5,7 @@ import { App } from './App.js';
 
 
 window.onload = function() {
-    window.app = App.clone()
-    app.run()
+    App.shared().run()
 }
 
 /*

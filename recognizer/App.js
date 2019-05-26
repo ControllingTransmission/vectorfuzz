@@ -8,13 +8,16 @@ import { Grid } from './Grid.js';
 import { Chunk } from './Chunk.js';
 
 class App extends BaseObject {
-    shared() {
-        const name = this.type().toLowerCase()
+
+    /*
+    static shared() {
+        const name = "app"
         if (!window[name]) {
-            window[name] = Models.clone()
+            window[name] = App.clone()
         }
         return window[name]
     }
+    */
 
     init() {
         super.init()
@@ -88,7 +91,7 @@ class App extends BaseObject {
         this.camera().targetPosition = new THREE.Vector3()
         this.camera().velocity = new THREE.Vector3()
         this.camera().velocity.x = 0
-        this.camera().velocity.z = 50
+        this.camera().velocity.z = 150
         this.camera().position.y = 600
         this.camera().position.z = -6000
     }
@@ -109,9 +112,11 @@ class App extends BaseObject {
         // objects
 
         //"Hg_carrier", "carrier", "Recognizer"
+        /*
         const group = Models.shared().objectNamed("Recognizer.obj")
         this.scene().add(group)
         this.lookAtObject(group)
+        */
 
         //this.setupFloor()
 
@@ -339,14 +344,12 @@ class App extends BaseObject {
     }
 }
 
-window.onload = function() {
-    App.shared().run()
-}
-
+/*
 function rainbowColor() {
     const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
     const color = colors[Math.floor(Math.random() * colors.length)]
     return color
 }
+*/
 
 export { App }
