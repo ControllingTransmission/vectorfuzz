@@ -428,6 +428,25 @@ Obj3d.recursiveSetColor = function(hexColor) {
     } );
 }
 
+/*
+Obj3d.asMergedGeometryObject = function() {
+    var newGeo = new THREE.Geometry();
+    var newTree = this.clone(); //Clones the tree so the original does not get altered
+    newTree.traverse((child) => {
+        if(child.parent){
+            child.updateMatrixWorld();
+            child.applyMatrix(child.parent.matrixWorld);    
+        }
+        if (child.type === "Mesh") {
+            newGeo.mergeMesh (child)
+        }
+    });
+    const obj = new THREE.Object3D();
+    obj.geometry = newGeo;
+    return obj
+}
+*/
+
 
 
 function aTubeObject() {

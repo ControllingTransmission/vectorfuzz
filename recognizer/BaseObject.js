@@ -1,3 +1,12 @@
+"use strict"
+
+if (!String.prototype.capitalized) {
+    String.prototype.capitalized = function () {
+        return this.replace(/\b[a-z]/g, function (match) {
+            return match.toUpperCase();
+        });
+    }
+}
 
 class BaseObject {
 
@@ -53,3 +62,5 @@ class BaseObject {
         return this;
     }
 }
+
+export { BaseObject }

@@ -16,10 +16,7 @@
       background-color: black;
       margin: 0px;
       overflow: hidden;
-/*
-      -webkit-filter: blur(0.5px); 
       filter: blur(0.5px);
-      */
       border: none;
       outline: none;
       padding: 0px;
@@ -32,10 +29,6 @@
 
 
 <body>
-  <!-- 
-
-<canvas id="canvas" style="min-width:100%; min-height:100%; max-width:100%; max-height:100%;"></canvas>
-  -->
 
 <script type="text/javascript" src="three.js-dev/build/three.js"></script>
 <script type="text/javascript" src="three.js-dev/examples/js/loaders/OBJLoader.js"> </script>
@@ -51,55 +44,23 @@
 <script type="text/javascript" src="three.js-dev/examples/js/shaders/ThickLineShader.js"></script>
 -->
 
+<!-- begin SVGRenderer -->
 <script src="three.js-dev/examples/js/renderers/Projector.js"></script>
 <script src="three.js-dev/examples/js/renderers/SVGRenderer.js"></script>
+<!-- end SVGRenderer -->
 
 <!--
 <script type="text/javascript" src ="external_libraries/csg.js-master/csg.js"> </script>
 -->
 
-
-<!--
-<script type="text/javascript" src ="extra/Math.js"> </script>
-<script type="text/javascript" src ="extra/math/Box3.js"> </script>
-<script type="text/javascript" src ="extra/math/Vector3.js"> </script>
-<script type="text/javascript" src ="extra/BufferGeometry.js"> </script>
-<script type="text/javascript" src ="extra/BufferAttribute.js"> </script>
-<script type="text/javascript" src ="extra/LineSegments.js"> </script>
-<script type="text/javascript" src ="extra/EdgesGeometry.js"> </script>
--->
-
-<!--
-<script type="text/javascript" src ="external_libraries/extrude-polyline-master/vecutil.js"> </script>
-<script type="text/javascript" src ="external_libraries/extrude-polyline-master/index.js"> </script>
--->
-
 <script type="text/javascript" src ="Object3D-extras.js"> </script>
-<script type="text/javascript" src ="main.js"> </script>
+<script type="module" src ="main.js"> </script>
 
-<script>
-  /*import vec from external_libraries/gl-vec2-master/index.js*/
-</script>
 
-<!--
-<embed id=music src="./music/01 Things to Come.mp3" width="0" height="0" loop="true" autostart="true" hidden="true" />
-<audio id="music"> 
-  <source src="./music/07TronScherzo.mp3">
-</audio>
-
-<script>
-document.getElementById("music").pause()
-document.getElementById("music").currentTime = 10000
-document.getElementById("music").play()
-
-2.5
-</script>
--->
-
-<svg>
+<svg style="max-height: 0px; max-width:0px;">
     <defs>
         <filter id="glow">
-            <feGaussianBlur stdDeviation="10" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
             <feMerge>
                 <feMergeNode in="coloredBlur"/>
                 <feMergeNode in="SourceGraphic"/>

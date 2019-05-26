@@ -1,0 +1,41 @@
+
+"use strict"
+
+import { BaseObject } from './BaseObject.js';
+
+class Model extends BaseObject {
+    init() {
+        super.init()
+        this.newSlot("path", null); 
+        this.newSlot("loader", null); 
+        this.newSlot("object", null); 
+        this.newSlot("delegate", null); 
+    }
+
+    load() {
+        console.log("loading '" + this.path() + "'...")
+        const loader = new THREE.OBJLoader();
+        //const loader = new THREE.ObjectLoader();
+        const callback = (obj) => { this.didLoad(obj) };
+        loader.load(this.path(), callback);  
+        this.setLoader(loader)  
+        //loader.addEventListener("load", callback );
+    }
+
+    didLoad(object) {
+        console.log("loaded '" + this.path() + "'")
+        const outline = object.asEdgesObject(0xff6600, 4, .5)
+        this.setObject(outline)
+        //window.app.spotlight().target = object
+        this.sendDidLoad()
+    }
+
+    sendDidLoad() {
+        const d = this.delegate()
+        if (d && d.didLoadModel) {
+            d.didLoadModel(this)
+        }
+    }
+}
+
+export { Model }
