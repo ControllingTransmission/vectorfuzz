@@ -16,30 +16,41 @@ class Models extends BaseObject {
     init() {
         super.init()
         this.newSlot("dict", {}); // name to Group of model
-        this.newSlot("isDebugging", true); 
+        this.newSlot("isDebugging", true);
+        this.preload()
+    }
+
+    preload() {
+        const preloadNames = ["Hg_carrier.obj", "carrier.obj", "Recognizer.obj"];
+        preloadNames.forEach((name) => this.objectNamed(name))
     }
 
     objectNamed(aName) {
-        let obj = this.dict()[aName]
-        if (!obj) {
-            obj = this.loadObjectNamed(aName)
-        } else {
-            obj = obj.clone(true) // recursive clone
-        }
-        // TODO: keep first object here and hand clones to callers
-        // need to keep a list of returned objects to update when
-        // initial is loaded
+        console.log(this.type() + " objectNamed '" + aName + "'")
+
+        let proto = this.dict()[aName]
+        if (!proto) {
+            proto = this.loadObjectNamed(aName)
+        } 
         
-        return obj
+        if (proto._isLoaded) {
+            return proto.clone(true)
+        } 
+        
+        const newInstance = new THREE.Group()
+        proto._waitingClones.push(newInstance)
+        return newInstance
     }
 
     loadObjectNamed(aName) {
         const path = "./models/" + aName;
         const model = Model.clone().setPath(path).setDelegate(this).load();
-        const obj = new THREE.Group();
-        model.setInfo(obj) // so we can fill it in when loaded
-        this.dict()[aName] = obj
-        return obj
+        const group = new THREE.Group();
+        group._isLoaded = false
+        group._waitingClones = []
+        model.setInfo(group) // so we can fill it in when loaded
+        this.dict()[aName] = group
+        return group
     }
 
     didLoadModel(aModel) {
@@ -48,6 +59,9 @@ class Models extends BaseObject {
         }
         const group = aModel.info()
         group.add(aModel.object())
+        group._waitingClones.forEach((waitingClone) => { 
+            waitingClone.add(group.clone(true))
+        })
     }
 }
 

@@ -102,13 +102,17 @@ class App extends BaseObject {
         
         //this.setupComposer()
         //this.setupCSSRenderer()
-        //this.setupWebGLRenderer()
+        //this.setupRenderer()
         this.setupSVGRenderer()
         //this.setupCanvasRenderer()
 
         // objects
 
+        //this.setupTestSquare()
+        //this.setupTestObject()    
+        
         //"Hg_carrier", "carrier", "Recognizer"
+
         const group = Models.shared().objectNamed("Recognizer.obj")
         this.scene().add(group)
         this.lookAtObject(group)
@@ -153,7 +157,7 @@ class App extends BaseObject {
         this.setupRendererOptions()
     }
 
-    setupWebGLRenderer() {
+    setupRenderer() {
         const renderer = new THREE.WebGLRenderer();
         this.setRenderer(renderer);
         this.setupRendererOptions()
@@ -164,8 +168,23 @@ class App extends BaseObject {
         this.container().appendChild( this.renderer().domElement );
     }
 
-    // ------------------------------------------
+    /*
+    setupCSSRenderer() {
+        const renderer = new THREE.CSS3DRenderer();
+        this.setRenderer(renderer);
+        document.body.appendChild(renderer.domElement);
+    }
+    */
 
+    //
+
+    setupTestSquare() {
+        const geometry = new THREE.PlaneGeometry( 200, 200, 1, 1);
+        const material = new THREE.MeshBasicMaterial( {color: 0x000000, side: THREE.DoubleSide} );
+        const plane = new THREE.Mesh( geometry, material );
+        //plane.addOutline()
+        this.scene().add( plane );
+    }
 
     setupTestObject() {
         const geometry = new THREE.CubeGeometry(100,100,100);
@@ -211,6 +230,109 @@ class App extends BaseObject {
 
         //group.addOutline()
         //this.scene().add( group );
+    }
+
+    setupFloor() {
+        //this.setupFloorPlane()
+        //this.setupFloorWire()
+        //this.setupFloorLines()
+        //this.setupFloorGrid()
+    }
+
+    floorSize() {
+        return 10000
+    }
+
+    setupFloorPlane() {
+        const size = this.floorSize()
+        //const floorGeometry = new THREE.CubeGeometry(size, .5, size, 10, 10);
+        //const floorWireGeometry = new THREE.PlaneGeometry( size, size, 30, 30);
+        const floorGeometry = new THREE.PlaneGeometry( size, size, 1, 1);
+        //var floorMaterial = new THREE.MeshLambertMaterial({ color: 0x3d518b });
+        //var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        //var floorGeometry = new THREE.PlaneBufferGeometry( 20000, 20000, 30, 30 );
+        var material = new THREE.MeshLambertMaterial( {
+            color: 0x0000ff, 
+            wireframe: false, 
+            fog:true,
+            side: THREE.DoubleSide
+        } );
+
+
+        //floor.recursiveSetColor(0x0000ff)
+
+        const floor = new THREE.Mesh(floorGeometry, material);
+        //floorWire.rotation.x = -Math.PI/2
+
+        floor.rotation.x = -Math.PI/2
+        floor.position.x = 0;
+        floor.position.y = 0;
+        floor.position.z = 0;
+        floor.receiveShadow = true;
+        this.scene().add( floor );
+    }
+
+    setupFloorLines() {
+        const size = this.floorSize()
+        /*
+        const geometry = new THREE.Geometry();
+        const f = 10
+        geometry.vertices.push(new THREE.Vector3(- f*size/2, 0, 0 ) );
+        geometry.vertices.push(new THREE.Vector3(  f*size/2, 0, 0 ) );
+
+        const color = 0x0000ff;
+        //const color = rainbowColor();
+        const linesMaterial = new THREE.LineBasicMaterial( { color: color, opacity: .2, linewidth: 3 } );
+	    //var linesMaterial = new THREE.MeshBasicMaterial({wireframe:true});
+        */
+        const max = 40
+        for (let i = -max/2; i <= max/2; i ++ ) {
+            
+            //let line = new THREE.Line( geometry, linesMaterial );
+
+            const line = this.newFloorLine()
+            line.position.z = i * (size/max);
+            line.position.y = 0
+            this.scene().add( line );
+        }
+        
+    }
+
+    setupFloorGrid(dy) {
+        if (!dy) { dy = 0; }
+        const size = this.floorSize()
+        const grid = new THREE.GridHelper( size, 30, 0xffffff, 0xffffff  );
+        //grid.scale.multiplyScalar(0.1)
+        //grid.setColors( 0xffffff, 0xffffff );
+        //grid.rotation.z += -Math.PI/2
+        grid.position.y += dy
+        this.scene().add( grid );
+        grid.recursiveSetLineWidth(10)
+    }
+
+    setupFloorWire() {
+        const floorWireGeometry = new THREE.PlaneGeometry( 10000, 10000, 30, 30);
+        
+        const lineMaterial = new THREE.LineBasicMaterial( {
+            color: 0xffffff,
+            linewidth: 10,
+            linecap: 'round', //ignored by WebGLRenderer
+            linejoin:  'round' //ignored by WebGLRenderer
+        } );
+
+        const meshMaterial = new THREE.MeshLambertMaterial( {
+            color: 0xffffff, 
+            wireframe: true, 
+            wireframeLinewidth: 10,
+            fog: true,
+        } );
+    
+        const floorWire = new THREE.Mesh( floorWireGeometry, meshMaterial);
+        //floorWire.rotation.z += -Math.PI/4
+        floorWire.rotation.x = -Math.PI/2
+        floorWire.position.y += 0.01
+        floorWire.receiveShadow = true;
+        this.scene().add( floorWire );
     }
 
     updateCameraForTargetPosition() {
