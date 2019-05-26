@@ -2,6 +2,7 @@
 "use strict"
 
 import { BaseObject } from './BaseObject.js';
+import { Models } from './Models.js';
 import { Model } from './Model.js';
 import { Grid } from './Grid.js';
 import { Chunk } from './Chunk.js';
@@ -79,7 +80,7 @@ class App extends BaseObject {
         this.camera().targetPosition = new THREE.Vector3()
         this.camera().velocity = new THREE.Vector3()
         this.camera().velocity.x = 0
-        this.camera().velocity.z = 100
+        this.camera().velocity.z = 50
         this.camera().position.y = 600
         this.camera().position.z = -6000
     }
@@ -106,8 +107,11 @@ class App extends BaseObject {
         //this.loadModel("carrier")           
         //this.loadModel("Recognizer")
 
+        const group = Models.shared().objectNamed("Recognizer.obj")
+
         const modelPath = "models/Recognizer.obj"
-        const model = Model.clone().setPath(modelPath).setDelegate(this).load()
+        this.didLoadObject(group)
+        //Model.clone().setPath(modelPath).setDelegate(this).load()
 
         //this.setupFloor()
 
@@ -330,6 +334,10 @@ class App extends BaseObject {
 
     didLoadModel(model) {
         const obj = model.object()
+        this.didLoadObject(obj)
+    }
+
+    didLoadObject(obj) {
         this.scene().add(obj)
         this.lookAtObject(obj)
     }

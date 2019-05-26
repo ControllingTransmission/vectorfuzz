@@ -10,20 +10,27 @@ class Model extends BaseObject {
         this.newSlot("loader", null); 
         this.newSlot("object", null); 
         this.newSlot("delegate", null); 
+        this.newSlot("isDebugging", true); 
+        this.newSlot("info", null); // extra slot for delegate to store info
     }
 
     load() {
-        console.log("loading '" + this.path() + "'...")
+        if (this.isDebugging()) {
+            console.log(this.type() + " loading '" + this.path() + "'...")
+        }
         const loader = new THREE.OBJLoader();
         //const loader = new THREE.ObjectLoader();
         const callback = (obj) => { this.didLoad(obj) };
         loader.load(this.path(), callback);  
         this.setLoader(loader)  
         //loader.addEventListener("load", callback );
+        return this
     }
 
     didLoad(object) {
-        console.log("loaded '" + this.path() + "'")
+        if (this.isDebugging()) {
+            console.log(this.type() + " loaded '" + this.path() + "'")
+        }
         const outline = object.asEdgesObject(0xff6600, 4, .5)
         this.setObject(outline)
         //window.app.spotlight().target = object
