@@ -6,10 +6,11 @@ import { Model } from './Model.js';
 
 class Models extends BaseObject {
     shared() {
-        if (!window["models"]) {
-            window.models = Models.clone()
+        const name = this.type().toLowerCase()
+        if (!window[name]) {
+            window[name] = Models.clone()
         }
-        return window.models
+        return window[name]
     }
 
     init() {
@@ -22,7 +23,13 @@ class Models extends BaseObject {
         let obj = this.dict()[aName]
         if (!obj) {
             obj = this.loadObjectNamed(aName)
+        } else {
+            obj = obj.clone(true) // recursive clone
         }
+        // TODO: keep first object here and hand clones to callers
+        // need to keep a list of returned objects to update when
+        // initial is loaded
+        
         return obj
     }
 

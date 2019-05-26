@@ -10,7 +10,7 @@ class Model extends BaseObject {
         this.newSlot("loader", null); 
         this.newSlot("object", null); 
         this.newSlot("delegate", null); 
-        this.newSlot("isDebugging", true); 
+        this.newSlot("isDebugging", false); 
         this.newSlot("info", null); // extra slot for delegate to store info
     }
 

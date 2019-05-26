@@ -8,6 +8,14 @@ import { Grid } from './Grid.js';
 import { Chunk } from './Chunk.js';
 
 class App extends BaseObject {
+    shared() {
+        const name = this.type().toLowerCase()
+        if (!window[name]) {
+            window[name] = Models.clone()
+        }
+        return window[name]
+    }
+
     init() {
         super.init()
         this.newSlot("container", null);
@@ -103,15 +111,11 @@ class App extends BaseObject {
         //this.setupTestSquare()
         //this.setupTestObject()    
         
-        //this.loadModel("Hg_carrier")           
-        //this.loadModel("carrier")           
-        //this.loadModel("Recognizer")
+        //"Hg_carrier", "carrier", "Recognizer"
 
         const group = Models.shared().objectNamed("Recognizer.obj")
-
-        const modelPath = "models/Recognizer.obj"
-        this.didLoadObject(group)
-        //Model.clone().setPath(modelPath).setDelegate(this).load()
+        this.scene().add(group)
+        this.lookAtObject(group)
 
         //this.setupFloor()
 
@@ -332,16 +336,6 @@ class App extends BaseObject {
         this.scene().add( floorWire );
     }
 
-    didLoadModel(model) {
-        const obj = model.object()
-        this.didLoadObject(obj)
-    }
-
-    didLoadObject(obj) {
-        this.scene().add(obj)
-        this.lookAtObject(obj)
-    }
-
     updateCameraForTargetPosition() {
         const cam = this.camera()
         const diff = cam.targetPosition.clone().add(cam.position.clone().negate())
@@ -469,8 +463,7 @@ class App extends BaseObject {
 }
 
 window.onload = function() {
-    window.app = App.clone()
-    app.run()
+    App.shared().run()
 }
 
 function rainbowColor() {
