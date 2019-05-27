@@ -91,10 +91,19 @@ class App extends BaseObject {
         this.camera().targetPosition = new THREE.Vector3()
         this.camera().velocity = new THREE.Vector3()
         this.camera().velocity.x = 0
-        this.camera().velocity.z = 250
+        this.camera().velocity.y = 0
+        this.camera().velocity.z = 30
 
-        this.camera().position.y = 600
+        this.camera().position.y = 0
         this.camera().position.z = -6000
+        this.lookForward()
+        this.camera().rotation.y = 0.7*Math.PI/2
+    }
+
+    lookForward() {
+        const cam = this.camera()
+        const p = new THREE.Vector3(cam.position.x, cam.position.y, cam.position.z + 1)
+        cam.lookAt(p)
     }
 
     setup() {     
@@ -259,8 +268,7 @@ class App extends BaseObject {
         cam.position.y += cam.velocity.y
         cam.position.z += cam.velocity.z
         
-        const p = new THREE.Vector3(cam.position.x, cam.position.y, cam.position.z + 100)
-        this.camera().lookAt(p)
+
 
     }
 
@@ -317,19 +325,23 @@ class App extends BaseObject {
 
     addSVGFilters() {
         const svgElements = document.getElementsByTagName("svg");
-        const pathElements = svgElements[1].getElementsByTagName("path");
-        
-        for (let i = 0; i < pathElements.length; i ++) {
-            const e = pathElements[i]
-            e.style.filter = "url(#glow)";
-            //e.style.overflow = "visible"; 
+        if (svgElements[1]) {
+            const pathElements = svgElements[1].getElementsByTagName("path");
+            
+            for (let i = 0; i < pathElements.length; i ++) {
+                const e = pathElements[i]
+                e.style.filter = "url(#glow)";
+                //e.style.overflow = "visible"; 
+            }
         }
     }
 
     animate() {
         requestAnimationFrame( () => { this.animate() } );
         this.render();
-        this.addSVGFilters()
+        if (this.renderer().constructor === THREE.SVGRenderer) {
+            this.addSVGFilters()
+        }
     }
 
     onWindowResize() {

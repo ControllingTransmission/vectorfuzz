@@ -11,9 +11,10 @@ THREE.Vector3.prototype.key = function() {
 
 THREE.Vector3.prototype.surroundingPoints = function() {
     const points = [];
-    const size = 2
-    for (let x = -size; x <= size; x++) {
-        for (let z = -size; z <= size; z++) {
+    const xSize = 5
+    const zSize = 5
+    for (let x = -xSize; x <= xSize; x++) {
+        for (let z = -zSize; z <= zSize; z++) {
             //const isCenter = (x === 0 && z === 0);
             //if (!isCenter) {
                 const point = new THREE.Vector3(this.x + x, this.y + 0, this.z + z);
@@ -29,7 +30,7 @@ class Grid extends BaseObject {
         super.init()
         this.newSlot("chunks", null);
         this.newSlot("grid", {});
-        this.newSlot("chunkSize", 16000);
+        this.newSlot("chunkSize", 2500);
         this.newSlot("oldGrid", {});
     }
 
@@ -78,9 +79,9 @@ class Grid extends BaseObject {
         if (this.oldGrid()[k]) {
             console.warn("attempt to recreate retired grid key")
         }
-        const pos = this.realPointForGridPoint(gp)
-        const chunk = Chunk.clone()
-        chunk.setPosition(pos)
+        const chunk = Chunk.clone().setGrid(this)
+        chunk.setGridPosition(gp)
+        chunk.setPosition(this.realPointForGridPoint(gp))
         chunk.setKey(k)
         chunk.generate()
         return chunk
@@ -93,8 +94,12 @@ class Grid extends BaseObject {
         for (let k in grid) {
             if (grid.hasOwnProperty(k)) {
                 const chunk = grid[k]
-                const didRetire = chunk.retireIfNeeded()
-                if (didRetire) {
+                const shouldRemove = chunk.retireIfNeeded()
+                if (shouldRemove) {
+                    if (this.oldGrid()[k]) {
+                        console.warn("attempt to remove previously retired grid key")
+                    }
+                    delete grid[k]
                     this.oldGrid()[k] = true
                     didChange = true
                 }
@@ -104,19 +109,6 @@ class Grid extends BaseObject {
             //console.log("scene size: ", App.shared().scene().children.length)
         }
     }
-
-    // --- objects ---
-
-    newCube() {
-        const size = 100
-        const geometry = new THREE.CubeGeometry(size, size, size);
-        const material = new THREE.LineBasicMaterial( { color: 0xff6600, opacity: 1, linewidth: 8 } );
-        const object = new THREE.Mesh(geometry, material);
-        const outline = object.asEdgesObject(0xff0000, 5, 1)
-        return outline
-    }
-
-
 }
 
 export { Grid }

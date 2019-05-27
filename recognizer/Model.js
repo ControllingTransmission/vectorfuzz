@@ -13,7 +13,7 @@ class Model extends BaseObject {
         this.newSlot("isLoaded", false); 
         this.newSlot("waitingClones", []); 
         this.newSlot("delegate", null); 
-        this.newSlot("isDebugging", true); 
+        this.newSlot("isDebugging", false); 
     }
 
     load() {
