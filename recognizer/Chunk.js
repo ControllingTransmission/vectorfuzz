@@ -3,6 +3,7 @@
 import { BaseObject } from './BaseObject.js';
 import { Grid } from './Grid.js';
 import { App } from './App.js';
+import { Models } from './Models.js';
 
 class Chunk extends BaseObject {
     init() {
@@ -18,7 +19,7 @@ class Chunk extends BaseObject {
     }
 
     generate() {
-        console.log("generating chunk " + this.key())
+        //console.log("generating chunk " + this.key())
         
         /*
         const lineCount = 10
@@ -31,9 +32,9 @@ class Chunk extends BaseObject {
             this.scene().add(line)
         }
         */
-        //const obj = Models.shared().objectNamed("Recognizer.obj")
-
-        const obj = this.newCube()
+        const obj = Models.shared().objectNamed("Recognizer.obj")
+        //const obj = this.newCube()
+        
         const pos = this.position()
 
         obj.position.x = pos.x
@@ -45,26 +46,42 @@ class Chunk extends BaseObject {
     }
 
     newCube() {
-        const size = this.chunkSize()/10
+        const size = 300
         const geometry = new THREE.CubeGeometry(size, size, size);
         const material = new THREE.LineBasicMaterial( { color: 0xff6600, opacity: 1, linewidth: 8 } );
         const object = new THREE.Mesh(geometry, material);
         const outline = object.asEdgesObject(0xff0000, 5, 1)
-
         return outline
     }
 
     retireIfNeeded() {
-        const maxDist = this.chunkSize() * 100
+        const maxDist = this.chunkSize() * 10
         const d = App.shared().camera().position.distanceTo(this.position())
         if (d > maxDist) {
-            console.log("removing chunk ", this.key())
-            chunk.objects.forEach((obj) => {
+            //console.log("removing chunk ", this.key())
+            this.objects().forEach((obj) => {
                 App.shared().scene().remove(obj)
             })
             delete Grid.shared().grid()[this.key()]
-            //console.log("scene.children.length = ", this.scene().children.length)
+            return true
         }
+        return false
+    }
+
+    newFloorLine() {
+        const size = this.floorSize()
+        const geometry = new THREE.Geometry();
+        const f = 10
+
+        geometry.vertices.push(new THREE.Vector3(- f*size/2, 0, 0 ) );
+        geometry.vertices.push(new THREE.Vector3(  f*size/2, 0, 0 ) );
+
+        const color = 0x0000ff;
+        const linesMaterial = new THREE.LineBasicMaterial( { color: color, opacity: .2, linewidth: 3 } );
+        const line = new THREE.Line( geometry, linesMaterial );
+        //line.position.z = i * (size/max);
+        line.position.y = 0
+        return line
     }
 
 }

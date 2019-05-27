@@ -91,7 +91,8 @@ class App extends BaseObject {
         this.camera().targetPosition = new THREE.Vector3()
         this.camera().velocity = new THREE.Vector3()
         this.camera().velocity.x = 0
-        this.camera().velocity.z = 150
+        this.camera().velocity.z = 250
+
         this.camera().position.y = 600
         this.camera().position.z = -6000
     }
