@@ -396,20 +396,19 @@ Obj3d.recursiveSetOpacity = function(opacity) {
 
 Obj3d.recursiveSetColor = function(hexColor) {           
     this.traverse( (node) => { 
-        if ( node instanceof THREE.Mesh ) { 
-            //console.log("----")
-            //console.log("node:", typeof(node), JSON.stringify(Object.keys(node)))
-            //console.log("----")
-            //console.log("node.material:", typeof(node.material), node.material.length)
-            //console.log("----")
-            //console.log("node.material.color:", typeof(node.material.color), node.material.color)
-            //console.log("----")
-            //if (typeof(node.material) === "Array") {
+        if (node.material) {
+        //if ( node instanceof THREE.Mesh || node instanceof THREE.LineSegments ) { 
+
+            if (node.material.constructor === Array) {
                 for (let i = 0; i < node.material.length; i++) {
                     let m = node.material[i]
                     m.color.setHex(hexColor)
                 }
-            //}
+                node.needsUpdate = true
+            } else {
+                node.material.color.setHex(hexColor)
+                node.needsUpdate = true
+            }
             /*
             if (node.material.color) {
                 node.material.color.setHex(hexColor)
@@ -426,6 +425,12 @@ Obj3d.recursiveSetColor = function(hexColor) {
             */
         } 
     } );
+}
+
+THREE.Color.prototype.rainbowHexColor = function() {
+    const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
+    const color = colors[Math.floor(Math.random() * colors.length)]
+    return color
 }
 
 /*
@@ -448,13 +453,12 @@ Obj3d.asMergedGeometryObject = function() {
 */
 
 
-
+/*
 function aTubeObject() {
-    /*
-    const THREE = require('three');
-    const extrudePolyline = require('extrude-polyline');
-    const Complex = require('three-simplicial-complex')(THREE);
-    */
+    
+    //const THREE = require('three');
+    //const extrudePolyline = require('extrude-polyline');
+    //const Complex = require('three-simplicial-complex')(THREE);
 
     const vertices = [[0, 0], [10, 0], [10, 10], [20, 10], [30, 00]];
     const geometry = thickPolyline(vertices, 10);
@@ -483,4 +487,5 @@ function thickPolyline(points, lineWidth) {
 
     return Complex(simplicialComplex);
 }
+*/
 

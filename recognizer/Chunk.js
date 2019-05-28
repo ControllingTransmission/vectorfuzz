@@ -15,14 +15,34 @@ class Chunk extends BaseObject {
         this.newSlot("objects", []);
     }
 
+
     chunkSize() {
         return this.grid().chunkSize()
+    }
+
+    update() {
+        this.objects().forEach((obj) => {
+            obj.recursiveSetColor(new THREE.Color().rainbowHexColor())
+        })
+    }
+
+    generateFrame() {     
+        const pos = this.position()
+        const cube = this.newCube()
+        cube.name = this.key()
+
+        cube.position.x = pos.x
+        cube.position.y = pos.y + this.chunkSize()/2
+        cube.position.z = pos.z //+ 6000
+        cube.recursiveSetColor(0x00ff00) // not working in SVG mode
+        this.add(cube)
     }
 
     generate() {
         //console.log("generating chunk " + this.key())
         const pos = this.position()
         
+        /*
         const lineCount = 3
         const chunkSize = this.chunkSize()
         for (let i = 0; i < lineCount; i ++) {
@@ -33,11 +53,11 @@ class Chunk extends BaseObject {
             //console.log("line.position.z = ", line.position.z)
             this.add(line)
         }
+        */
         
-        
-        let obj = null
-        obj = this.newCube()
+        this.generateFrame()
 
+        let obj = null;
         /*
         if (Math.random() < 0.02) {
             obj = Models.shared().objectNamed("Recognizer.obj")
@@ -65,6 +85,21 @@ class Chunk extends BaseObject {
         App.shared().scene().add(obj)
     }
 
+    isOutOfRange() {
+        const maxDist = this.chunkSize() * 10
+        const d = App.shared().camera().position.distanceTo(this.position())
+        return (d > maxDist);
+    }
+
+    shutdown() {
+        this.objects().forEach((obj) => {
+            App.shared().scene().remove(obj)
+        })
+        this.setObjects([])
+    }
+
+    // -----------------------------------------------------
+
 
     newCube() {
         const size = this.chunkSize()
@@ -74,40 +109,6 @@ class Chunk extends BaseObject {
         const outline = object.asEdgesObject(0xff0000, 5, 1)
         return outline
     }
-
-    retireIfNeeded() {
-        const maxDist = this.chunkSize() * 30
-        const d = App.shared().camera().position.distanceTo(this.position())
-        if (d > maxDist) {
-            console.log("removing chunk ", this.key())
-            this.objects().forEach((obj) => {
-                App.shared().scene().remove(obj)
-            })
-            return true
-        }
-        
-        return false
-    }
-
-    floorSize() {
-        return 10000
-    }
-
-    newFloorLine() {
-        //const size = this.floorSize()
-        const size = this.chunkSize()
-        const geometry = new THREE.Geometry();
-        //const f = 10
-
-        geometry.vertices.push(new THREE.Vector3(- size/2, 0, 0 ) );
-        geometry.vertices.push(new THREE.Vector3(  size/2, 0, 0 ) );
-
-        const color = 0x0000ff;
-        const linesMaterial = new THREE.LineBasicMaterial( { color: color, opacity: 1, linewidth: 4 } );
-        const line = new THREE.Line( geometry, linesMaterial );
-        return line
-    }
-
 }
 
 export { Chunk }

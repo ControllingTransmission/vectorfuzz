@@ -31,12 +31,9 @@ class Grid extends BaseObject {
         super.init()
         this.newSlot("chunks", null);
         this.newSlot("grid", {});
-        this.newSlot("chunkSize", 2500);
-        this.newSlot("oldGrid", {});
-    }
-
-    floorSize() {
-        return App.shared().floorSize()
+        this.newSlot("chunkClass", Chunk)
+        this.newSlot("chunkSize", 10000);
+        //this.newSlot("oldGrid", {});
     }
 
     // --- points ---
@@ -67,7 +64,20 @@ class Grid extends BaseObject {
             this.generateChunkForGridPointIfNeeded(p)
         })
         //console.log("---")
-        this.retireGridPointsIfNeeded()
+        this.updateChunks()
+    }
+
+    updateChunks() {
+        const grid = this.grid()
+        for (let k in grid) {
+            if (grid.hasOwnProperty(k)) {
+                const chunk = grid[k]
+                chunk.update()  
+                if (chunk.isOutOfRange()) {
+                    this.removeChunk(chunk)
+                }
+            }
+        }
     }
 
     generateChunkForGridPointIfNeeded(gp) {
@@ -79,10 +89,12 @@ class Grid extends BaseObject {
 
     generateChunk(gp) {
         const k = gp.key()
+        /*
         if (this.oldGrid()[k]) {
             console.warn("attempt to recreate retired grid key")
         }
-        const chunk = Chunk.clone().setGrid(this)
+        */
+        const chunk = this.chunkClass().clone().setGrid(this)
         chunk.setGridPosition(gp)
         chunk.setPosition(this.realPointForGridPoint(gp))
         chunk.setKey(k)
@@ -90,27 +102,9 @@ class Grid extends BaseObject {
         return chunk
     }
 
-
-    retireGridPointsIfNeeded() {
-        let didChange = false
-        const grid = this.grid()
-        for (let k in grid) {
-            if (grid.hasOwnProperty(k)) {
-                const chunk = grid[k]
-                const shouldRemove = chunk.retireIfNeeded()
-                if (shouldRemove) {
-                    if (this.oldGrid()[k]) {
-                        console.warn("attempt to remove previously retired grid key")
-                    }
-                    delete grid[k]
-                    this.oldGrid()[k] = true
-                    didChange = true
-                }
-            }
-        }
-        if (didChange) {
-            //console.log("scene size: ", App.shared().scene().children.length)
-        }
+    removeChunk(chunk) {
+        chunk.shutdown()
+        delete grid[chunk.key()]
     }
 }
 

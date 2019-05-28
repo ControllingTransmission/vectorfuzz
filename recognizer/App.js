@@ -5,6 +5,8 @@ import { BaseObject } from './BaseObject.js';
 import { Models } from './Models.js';
 import { Model } from './Model.js';
 import { Grid } from './Grid.js';
+import { FloorGrid } from './FloorGrid.js';
+//import { FloorChunk } from './FloorChunk.js';
 import { Chunk } from './Chunk.js';
 
 class App extends BaseObject {
@@ -35,22 +37,11 @@ class App extends BaseObject {
         this.newSlot("spotlight", null);
         //this.newSlot("objects", null);
         this.newSlot("grid", Grid.clone());
-        this.newSlot("keys", {});
+        this.newSlot("floorGrid", FloorGrid.clone());
+        this.newSlot("keyboard", {});
 
         this.setup()
     }
-
-    /*
-    addObject(obj) {
-        this.objects().push(obj)
-        this.scene().add(obj)
-    }
-
-    removeObject(obj) {
-        this.objects().remove(obj)
-        this.scene().remove(obj)
-    }
-    */
 
     newSpotlight() {
         const light = new THREE.SpotLight(0xaaaaaa);
@@ -67,24 +58,24 @@ class App extends BaseObject {
     onKeyUp(event) {
         const char = String.fromCharCode(event.keyCode)
         console.log("onKeyUp '" + char + "'")
-        this.keys()[char] = false
+        this.keyboard()[char] = false
     }
 
     onKeyDown(event) {
         const char = String.fromCharCode(event.keyCode)
         console.log("onKeyDown '" + char + "'")
-        this.keys()[char] = true
+        this.keyboard()[char] = true
     }
 
     updateKeyActions() {
         const cam = this.camera();
 
-        if (this.keys()["A"]) {
+        if (this.keyboard()["A"]) {
             cam.rotationalVelocity.y -= 0.01
             //cam.rotation.y -= 0.1
         }
 
-        if (this.keys()["D"]) {
+        if (this.keyboard()["D"]) {
             cam.rotationalVelocity.y += 0.01
             //cam.rotation.y += 0.1
         }
@@ -93,12 +84,12 @@ class App extends BaseObject {
         cam.getWorldDirection(v)
 
         const r = 10
-        if (this.keys()["W"]) {
+        if (this.keyboard()["W"]) {
             cam.velocity.x += r * v.x
             cam.velocity.z += r * v.z
         }
 
-        if (this.keys()["S"]) {
+        if (this.keyboard()["S"]) {
             cam.velocity.x -= r * v.x
             cam.velocity.z -= r * v.z
         }
@@ -149,8 +140,6 @@ class App extends BaseObject {
         const ambientLight = new THREE.AmbientLight(0xffffff);
         this.scene().add(ambientLight);
         
-        //this.setupComposer()
-        //this.setupCSSRenderer()
         //this.setupWebGLRenderer()
         this.setupSVGRenderer()
         //this.setupCanvasRenderer()
@@ -296,22 +285,6 @@ class App extends BaseObject {
         cam.rotation.z += cam.rotationalVelocity.z
     }
 
-    newFloorLine() {
-        const size = this.floorSize()
-        const geometry = new THREE.Geometry();
-        const f = 10
-
-        geometry.vertices.push(new THREE.Vector3(- f*size/2, 0, 0 ) );
-        geometry.vertices.push(new THREE.Vector3(  f*size/2, 0, 0 ) );
-
-        const color = 0x0000ff;
-        const linesMaterial = new THREE.LineBasicMaterial( { color: color, opacity: .2, linewidth: 3 } );
-        const line = new THREE.Line( geometry, linesMaterial );
-        line.position.y = 0
-        return line
-    }
-
-
     // -----------------------------
 
     lookAtObject(obj) {
@@ -327,6 +300,7 @@ class App extends BaseObject {
         this.updateKeyActions()
         this.updateCamera()
         this.grid().update()
+        this.floorGrid().update()
 
         try {
             if (this.composer()) {
