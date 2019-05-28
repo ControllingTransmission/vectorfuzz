@@ -35,6 +35,7 @@ class App extends BaseObject {
         this.newSlot("spotlight", null);
         this.newSlot("objects", null);
         this.newSlot("grid", Grid.clone());
+        this.newSlot("keys", {});
 
         this.setup()
     }
@@ -61,17 +62,27 @@ class App extends BaseObject {
         return light       
     }
 
-    onKeydown(event) {
+    onKeyUp(event) {
         const char = String.fromCharCode(event.keyCode)
-        console.log("onKeydown '" + char + "'")
+        console.log("onKeyUp '" + char + "'")
+        this.keys()[char] = false
+    }
 
+    onKeyDown(event) {
+        const char = String.fromCharCode(event.keyCode)
+        console.log("onKeyDown '" + char + "'")
+        this.keys()[char] = true
+    }
+
+    updateKeyActions() {
         const cam = this.camera();
 
-        if (char === "A") {
+        if (this.keys()["A"]) {
             cam.rotationalVelocity.y -= 0.01
             //cam.rotation.y -= 0.1
         }
-        if (char === "D") {
+
+        if (this.keys()["D"]) {
             cam.rotationalVelocity.y += 0.01
             //cam.rotation.y += 0.1
         }
@@ -80,16 +91,15 @@ class App extends BaseObject {
         cam.getWorldDirection(v)
 
         const r = 10
-        if (char === "W") {
+        if (this.keys()["W"]) {
             cam.velocity.x += r * v.x
             cam.velocity.z += r * v.z
         }
 
-        if (char === "S") {
+        if (this.keys()["S"]) {
             cam.velocity.x -= r * v.x
             cam.velocity.z -= r * v.z
         }
-        //this.camera().
     }
 
     setupScene() {
@@ -157,7 +167,8 @@ class App extends BaseObject {
         window.addEventListener("resize", (event) => { this.onWindowResize(event) }, false);
         this.onWindowResize()
 
-        document.body.addEventListener("keydown", (event) => this.onKeydown(event), false);
+        document.body.addEventListener("keydown", (event) => this.onKeyDown(event), false);
+        document.body.addEventListener("keyup", (event) => this.onKeyUp(event), false);
     }
 
     /*
@@ -298,12 +309,6 @@ class App extends BaseObject {
         return line
     }
 
-    updateFloor() {
-        const line = this.newFloorLine()
-        line.position.z = this.camera().position.z + 3000
-        this.scene().add( line );
-    }
-
 
     // -----------------------------
 
@@ -317,7 +322,7 @@ class App extends BaseObject {
     render() {
         this.setTime(this.time() + 1)
 
-        //this.updateFloor()
+        this.updateKeyActions()
         this.updateCamera()
         this.grid().update()
 
