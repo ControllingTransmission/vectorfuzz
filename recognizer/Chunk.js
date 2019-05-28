@@ -27,15 +27,18 @@ class Chunk extends BaseObject {
         const chunkSize = this.chunkSize()
         for (let i = 0; i < lineCount; i ++) {
             const line = this.newFloorLine()
-            line.position.z = pos.z + i * chunkSize / lineCount
+            line.position.x = pos.x
             line.position.y = -100
+            line.position.z = pos.z + i * chunkSize / lineCount - chunkSize/2
             //console.log("line.position.z = ", line.position.z)
             this.add(line)
         }
         
         
         let obj = null
-        
+        obj = this.newCube()
+
+        /*
         if (Math.random() < 0.02) {
             obj = Models.shared().objectNamed("Recognizer.obj")
             const s = .01
@@ -43,6 +46,7 @@ class Chunk extends BaseObject {
         } else {
             //obj = this.newCube()
         }
+        */
 
         if (obj) {
             obj.position.x = pos.x
@@ -63,12 +67,11 @@ class Chunk extends BaseObject {
 
 
     newCube() {
-        const size = 300
+        const size = this.chunkSize()
         const geometry = new THREE.CubeGeometry(size, size, size);
         const material = new THREE.LineBasicMaterial( { color: 0xff6600, opacity: 1, linewidth: 8 } );
         const object = new THREE.Mesh(geometry, material);
         const outline = object.asEdgesObject(0xff0000, 5, 1)
-        outline.rotation.z = this.position().z/4000
         return outline
     }
 

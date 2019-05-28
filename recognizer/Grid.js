@@ -12,8 +12,8 @@ THREE.Vector3.prototype.key = function() {
 
 THREE.Vector3.prototype.surroundingPoints = function() {
     const points = [];
-    const xSize = 2
-    const zSize = 2
+    const xSize = 1
+    const zSize = 1
     for (let x = -xSize; x <= xSize; x++) {
         for (let z = -zSize; z <= zSize; z++) {
             //const isCenter = (x === 0 && z === 0);

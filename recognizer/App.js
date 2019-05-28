@@ -33,13 +33,14 @@ class App extends BaseObject {
         this.newSlot("time", null);
         this.newSlot("mainObject", null);
         this.newSlot("spotlight", null);
-        this.newSlot("objects", null);
+        //this.newSlot("objects", null);
         this.newSlot("grid", Grid.clone());
         this.newSlot("keys", {});
 
         this.setup()
     }
 
+    /*
     addObject(obj) {
         this.objects().push(obj)
         this.scene().add(obj)
@@ -49,6 +50,7 @@ class App extends BaseObject {
         this.objects().remove(obj)
         this.scene().remove(obj)
     }
+    */
 
     newSpotlight() {
         const light = new THREE.SpotLight(0xaaaaaa);
