@@ -38,6 +38,9 @@ class Model extends BaseObject {
         this.setObject(outline)
         this.group().add(this.object())
 
+        outline.recursiveSetColor(this.rainbowColor())
+
+
         this.waitingClones().forEach((clone) => {
             clone.add(this.object().clone())
         })
@@ -62,6 +65,12 @@ class Model extends BaseObject {
         if (d && d.didLoadModel) {
             d.didLoadModel(this)
         }
+    }
+
+    rainbowColor() {
+        const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
+        const color = colors[Math.floor(Math.random() * colors.length)]
+        return color
     }
 }
 

@@ -34,17 +34,15 @@ class Chunk extends BaseObject {
         }
         
         
-        
         let obj = null
         
-        if (Math.random() < 0.05) {
+        if (Math.random() < 0.02) {
             obj = Models.shared().objectNamed("Recognizer.obj")
             const s = .01
             //obj.scale.set(s, s, s)
         } else {
             //obj = this.newCube()
         }
-
 
         if (obj) {
             obj.position.x = pos.x
@@ -75,8 +73,7 @@ class Chunk extends BaseObject {
     }
 
     retireIfNeeded() {
-        
-        const maxDist = this.chunkSize() * 100
+        const maxDist = this.chunkSize() * 30
         const d = App.shared().camera().position.distanceTo(this.position())
         if (d > maxDist) {
             console.log("removing chunk ", this.key())
@@ -90,19 +87,20 @@ class Chunk extends BaseObject {
     }
 
     floorSize() {
-        return 30000
+        return 10000
     }
 
     newFloorLine() {
-        const size = this.floorSize()
+        //const size = this.floorSize()
+        const size = this.chunkSize()
         const geometry = new THREE.Geometry();
-        const f = 10
+        //const f = 10
 
-        geometry.vertices.push(new THREE.Vector3(- f*size/2, 0, 0 ) );
-        geometry.vertices.push(new THREE.Vector3(  f*size/2, 0, 0 ) );
+        geometry.vertices.push(new THREE.Vector3(- size/2, 0, 0 ) );
+        geometry.vertices.push(new THREE.Vector3(  size/2, 0, 0 ) );
 
         const color = 0x0000ff;
-        const linesMaterial = new THREE.LineBasicMaterial( { color: color, opacity: 1, linewidth: 3 } );
+        const linesMaterial = new THREE.LineBasicMaterial( { color: color, opacity: 1, linewidth: 4 } );
         const line = new THREE.Line( geometry, linesMaterial );
         return line
     }

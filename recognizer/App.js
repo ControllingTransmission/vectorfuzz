@@ -64,8 +64,30 @@ class App extends BaseObject {
     onKeydown(event) {
         const char = String.fromCharCode(event.keyCode)
         console.log("onKeydown '" + char + "'")
-        if (char === " ") {
-            this.chooseCameraTargetPosition()
+
+        const cam = this.camera();
+
+        if (char === "A") {
+            cam.rotationalVelocity.y -= 0.01
+            //cam.rotation.y -= 0.1
+        }
+        if (char === "D") {
+            cam.rotationalVelocity.y += 0.01
+            //cam.rotation.y += 0.1
+        }
+
+        const v = new THREE.Vector3()
+        cam.getWorldDirection(v)
+
+        const r = 10
+        if (char === "W") {
+            cam.velocity.x += r * v.x
+            cam.velocity.z += r * v.z
+        }
+
+        if (char === "S") {
+            cam.velocity.x -= r * v.x
+            cam.velocity.z -= r * v.z
         }
         //this.camera().
     }
@@ -89,15 +111,17 @@ class App extends BaseObject {
         //this.setControls(new THREE.OrbitControls(this.camera()));
         //this.controls().addEventListener("change", render );
         this.camera().targetPosition = new THREE.Vector3()
-        this.camera().velocity = new THREE.Vector3()
-        this.camera().velocity.x = 0
-        this.camera().velocity.y = 0
-        this.camera().velocity.z = 30
+        this.camera().velocity = new THREE.Vector3(0,0,0)
+        this.camera().friction = 0.9
 
-        this.camera().position.y = 0
+        this.camera().position.y = 1000
         this.camera().position.z = -6000
         this.lookForward()
-        this.camera().rotation.y = 0.7*Math.PI/2
+        this.camera().rotation.y = 0.7 * Math.PI/2
+
+        this.camera().rotationalVelocity = new THREE.Vector3()
+        this.camera().rotationalFriction = 0.9
+
     }
 
     lookForward() {
@@ -228,6 +252,7 @@ class App extends BaseObject {
         //this.scene().add( group );
     }
 
+    /*
     updateCameraForTargetPosition() {
         const cam = this.camera()
         const diff = cam.targetPosition.clone().add(cam.position.clone().negate())
@@ -243,33 +268,19 @@ class App extends BaseObject {
             //this.chooseCameraTargetPosition()
         }
     }
+    */
 
-    updateCameraToWatchMainObject() {
-        const speed = 1 / 500
-        
-        const mainRadius = 100 //this.mainObject().radius()/4
-        const r = mainRadius 
-        const t = this.time()
-        
-        // the x-z horizon plane
-        const f = 6
-        this.camera().position.x = f * r * Math.cos(speed * t)
-        this.camera().position.z = - f * r * Math.sin(speed * t)
-        
-        // y is height
-        this.camera().position.y = 2*r + 0.5 * r * Math.cos(speed * t * 0.5)
-        this.lookAtObject(this.mainObject())
-    }
 
     updateCamera() {
         const cam = this.camera()
 
-        cam.position.x += cam.velocity.x
-        cam.position.y += cam.velocity.y
-        cam.position.z += cam.velocity.z
-        
+        cam.velocity.multiplyScalar(cam.friction)
+        cam.rotationalVelocity.multiplyScalar(cam.rotationalFriction)
 
-
+        cam.position.add(cam.velocity)
+        cam.rotation.x += cam.rotationalVelocity.x
+        cam.rotation.y += cam.rotationalVelocity.y
+        cam.rotation.z += cam.rotationalVelocity.z
     }
 
     newFloorLine() {
@@ -283,7 +294,6 @@ class App extends BaseObject {
         const color = 0x0000ff;
         const linesMaterial = new THREE.LineBasicMaterial( { color: color, opacity: .2, linewidth: 3 } );
         const line = new THREE.Line( geometry, linesMaterial );
-        //line.position.z = i * (size/max);
         line.position.y = 0
         return line
     }
@@ -355,14 +365,9 @@ class App extends BaseObject {
     run() {
         this.animate();
     }
+
+
 }
 
-/*
-function rainbowColor() {
-    const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
-    const color = colors[Math.floor(Math.random() * colors.length)]
-    return color
-}
-*/
 
 export { App }

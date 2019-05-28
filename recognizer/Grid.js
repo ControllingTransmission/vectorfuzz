@@ -7,12 +7,13 @@ import { Chunk } from './Chunk.js';
 
 THREE.Vector3.prototype.key = function() {
     return this.x + "," + this.y + "," + this.z
+    //return this.x + "," + this.z
 }
 
 THREE.Vector3.prototype.surroundingPoints = function() {
     const points = [];
-    const xSize = 5
-    const zSize = 5
+    const xSize = 2
+    const zSize = 2
     for (let x = -xSize; x <= xSize; x++) {
         for (let z = -zSize; z <= zSize; z++) {
             //const isCenter = (x === 0 && z === 0);
@@ -41,7 +42,9 @@ class Grid extends BaseObject {
     // --- points ---
 
     currentGridPoint() {
-        return this.gridPointForRealPoint(App.shared().camera().position)
+        const cp = App.shared().camera().position.clone()
+        cp.y = 0
+        return this.gridPointForRealPoint(cp)
     }
 
     gridPointForRealPoint(p) {
