@@ -6,7 +6,7 @@ import { FloorChunk } from './FloorChunk.js';
 class FloorGrid extends Grid {
     init() {
         super.init()
-        this.setChunkSize(10000)
+        this.setChunkSize(100000)
         this.setChunkClass(FloorChunk)
     }
 }

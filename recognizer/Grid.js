@@ -32,7 +32,7 @@ class Grid extends BaseObject {
         this.newSlot("chunks", null);
         this.newSlot("grid", {});
         this.newSlot("chunkClass", Chunk)
-        this.newSlot("chunkSize", 10000);
+        this.newSlot("chunkSize", 30000);
         //this.newSlot("oldGrid", {});
     }
 
@@ -104,7 +104,7 @@ class Grid extends BaseObject {
 
     removeChunk(chunk) {
         chunk.shutdown()
-        delete grid[chunk.key()]
+        delete this.grid()[chunk.key()]
     }
 }
 

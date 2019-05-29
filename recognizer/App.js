@@ -8,6 +8,7 @@ import { Grid } from './Grid.js';
 import { FloorGrid } from './FloorGrid.js';
 //import { FloorChunk } from './FloorChunk.js';
 import { Chunk } from './Chunk.js';
+import { StarFieldChunk } from './StarFieldChunk.js';
 
 class App extends BaseObject {
 
@@ -35,11 +36,11 @@ class App extends BaseObject {
         this.newSlot("time", null);
         this.newSlot("mainObject", null);
         this.newSlot("spotlight", null);
-        //this.newSlot("objects", null);
         this.newSlot("grid", Grid.clone());
         this.newSlot("floorGrid", FloorGrid.clone());
         this.newSlot("keyboard", {});
 
+        this.floorGrid().setChunkClass(StarFieldChunk)
         this.setup()
     }
 
@@ -64,34 +65,56 @@ class App extends BaseObject {
     onKeyDown(event) {
         const char = String.fromCharCode(event.keyCode)
         console.log("onKeyDown '" + char + "'")
+        if (!this.keyboard()[char]) {
+            this.onFirstCharDown(char)
+        }
         this.keyboard()[char] = true
+    }
+
+    onFirstCharDown(char) {
+        if (char === " ") {
+            this.chooseCameraTargetPosition()
+        }
+
+        if (char === "R") {
+            this.rotateAroundObject()
+        }
     }
 
     updateKeyActions() {
         const cam = this.camera();
 
-        if (this.keyboard()["A"]) {
+        if (this.keyboard()["S"]) { // rotate left
             cam.rotationalVelocity.y -= 0.01
-            //cam.rotation.y -= 0.1
         }
 
-        if (this.keyboard()["D"]) {
+        if (this.keyboard()["F"]) { // rotate right
             cam.rotationalVelocity.y += 0.01
-            //cam.rotation.y += 0.1
         }
 
         const v = new THREE.Vector3()
         cam.getWorldDirection(v)
 
-        const r = 10
-        if (this.keyboard()["W"]) {
+        let r = 100
+        if (this.keyboard()["E"]) { // move forward
             cam.velocity.x += r * v.x
             cam.velocity.z += r * v.z
         }
 
-        if (this.keyboard()["S"]) {
+        if (this.keyboard()["D"]) { // move backward
             cam.velocity.x -= r * v.x
             cam.velocity.z -= r * v.z
+        }
+
+        r = 10
+        if (this.keyboard()["A"]) { // strafe left
+            cam.velocity.x += r * v.z
+            cam.velocity.z -= r * v.x
+        }
+
+        if (this.keyboard()["G"]) { // strafe right
+            cam.velocity.x -= r * v.z
+            cam.velocity.z += r * v.x
         }
     }
 
@@ -103,17 +126,21 @@ class App extends BaseObject {
     }
 
     chooseCameraTargetPosition() {
-        const max = 1000
-        this.camera().targetPosition.x = Math.random() * max - max/2;
-        this.camera().targetPosition.y = Math.random() * max / 2;
-        this.camera().targetPosition.z = Math.random() * max - max/2;
+        const max = 100000
+        const cam = this.camera()
+        cam.targetPosition = new THREE.Vector3()
+        cam.targetPosition.copy(cam.position)
+        cam.targetPosition.x += Math.random() * max - max/2;
+        //cam.targetPosition.y = Math.random() * max / 2;
+        cam.targetPosition.z += Math.random() * max - max/2;
+
+        // pick a target rotation facing the target position
     }
 
     setupCamera() {
         this.setCamera(new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 20, 100000));
         //this.setControls(new THREE.OrbitControls(this.camera()));
         //this.controls().addEventListener("change", render );
-        this.camera().targetPosition = new THREE.Vector3()
         this.camera().velocity = new THREE.Vector3(0,0,0)
         this.camera().friction = 0.9
 
@@ -254,35 +281,41 @@ class App extends BaseObject {
         //this.scene().add( group );
     }
 
-    /*
+    
     updateCameraForTargetPosition() {
         const cam = this.camera()
-        const diff = cam.targetPosition.clone().add(cam.position.clone().negate())
 
-        const r = 0.05
+        if (cam.targetPosition) {
+            const diff = cam.targetPosition.clone().add(cam.position.clone().negate())
 
-        cam.position.x += diff.x * r;
-        cam.position.y += diff.y * r;
-        cam.position.z += diff.z * r;
+            const r = 0.05
 
-        //console.log("diff.length = ", diff.length)
-        if (diff.length() < 2) {
-            //this.chooseCameraTargetPosition()
+            cam.position.x += diff.x * r;
+            cam.position.y += diff.y * r;
+            cam.position.z += diff.z * r;
+
+            //console.log("diff.length = ", diff.length)
+            if (diff.length() < 2) {
+                //this.chooseCameraTargetPosition()
+                cam.targetPosition = null
+            }
         }
     }
-    */
-
 
     updateCamera() {
         const cam = this.camera()
 
-        cam.velocity.multiplyScalar(cam.friction)
-        cam.rotationalVelocity.multiplyScalar(cam.rotationalFriction)
+        if (cam.targetPosition) {
+            this.updateCameraForTargetPosition()
+        } else {
+            cam.velocity.multiplyScalar(cam.friction)
+            cam.rotationalVelocity.multiplyScalar(cam.rotationalFriction)
 
-        cam.position.add(cam.velocity)
-        cam.rotation.x += cam.rotationalVelocity.x
-        cam.rotation.y += cam.rotationalVelocity.y
-        cam.rotation.z += cam.rotationalVelocity.z
+            cam.position.add(cam.velocity)
+            cam.rotation.x += cam.rotationalVelocity.x
+            cam.rotation.y += cam.rotationalVelocity.y
+            cam.rotation.z += cam.rotationalVelocity.z
+        }
     }
 
     // -----------------------------

@@ -9,9 +9,10 @@ import { Chunk } from './Chunk.js';
 class FloorChunk extends Chunk {
     init() {
         super.init()
-        this.newSlot("lineCount", 3)
+        this.newSlot("lineCount", 30)
+        this.setRange(10)
     }
-    
+
 
 
     generate() {
@@ -23,11 +24,24 @@ class FloorChunk extends Chunk {
         for (let i = 0; i < lineCount; i ++) {
             const line = this.newFloorLine()
             line.position.x = pos.x
-            line.position.y = -100
+            line.position.y = 0
             line.position.z = pos.z + i * chunkSize / lineCount - chunkSize/2
             //console.log("line.position.z = ", line.position.z)
             this.add(line)
         }
+
+        
+        for (let i = 0; i < lineCount; i ++) {
+            const line = this.newFloorLine()
+            line.position.x = pos.x + i * chunkSize / lineCount - chunkSize/2
+            line.position.y = 0
+            line.position.z = pos.z
+
+            line.rotation.y = Math.PI/2
+            //console.log("line.position.z = ", line.position.z)
+            this.add(line)
+        }
+        
     }
 
     newFloorLine() {

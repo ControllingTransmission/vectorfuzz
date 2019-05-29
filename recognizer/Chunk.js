@@ -13,8 +13,8 @@ class Chunk extends BaseObject {
         this.newSlot("gridPosition", null);
         this.newSlot("position", null);
         this.newSlot("objects", []);
+        this.newSlot("range", 3);
     }
-
 
     chunkSize() {
         return this.grid().chunkSize()
@@ -22,7 +22,9 @@ class Chunk extends BaseObject {
 
     update() {
         this.objects().forEach((obj) => {
-            obj.recursiveSetColor(new THREE.Color().rainbowHexColor())
+            if (obj.update) {
+                obj.update()
+            }
         })
     }
 
@@ -55,18 +57,22 @@ class Chunk extends BaseObject {
         }
         */
         
-        this.generateFrame()
+        //this.generateFrame()
 
         let obj = null;
-        /*
-        if (Math.random() < 0.02) {
+        
+        if (Math.random() < 0.1) {
             obj = Models.shared().objectNamed("Recognizer.obj")
-            const s = .01
+            obj.rotation.y = Math.PI * Math.random()
+            obj.update = function() {
+                this.recursiveSetColor(new THREE.Color().rainbowHexColor())
+            }
+            //const s = .01
             //obj.scale.set(s, s, s)
         } else {
             //obj = this.newCube()
         }
-        */
+        
 
         if (obj) {
             obj.position.x = pos.x
@@ -86,7 +92,7 @@ class Chunk extends BaseObject {
     }
 
     isOutOfRange() {
-        const maxDist = this.chunkSize() * 10
+        const maxDist = this.chunkSize() * this.range()
         const d = App.shared().camera().position.distanceTo(this.position())
         return (d > maxDist);
     }

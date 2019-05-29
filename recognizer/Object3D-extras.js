@@ -371,14 +371,6 @@ Obj3d.recursiveSetLineWidth = function(width) {
     } );
 }
 
-/*
-Obj3d.randomizePos = function() {
-    this.position.x = 2000 * (Math.random() - 0.5)
-    this.position.y = 2000 * (Math.random() - 0.0) + 5
-    this.position.z = 1000 * (Math.random() - 0.5)    
-}
-*/
-
 Obj3d.recursiveSetOpacity = function(opacity) {           
     this.traverse((node) => { 
         if (node instanceof THREE.Mesh) { 
@@ -397,11 +389,9 @@ Obj3d.recursiveSetOpacity = function(opacity) {
 Obj3d.recursiveSetColor = function(hexColor) {           
     this.traverse( (node) => { 
         if (node.material) {
-        //if ( node instanceof THREE.Mesh || node instanceof THREE.LineSegments ) { 
-
             if (node.material.constructor === Array) {
                 for (let i = 0; i < node.material.length; i++) {
-                    let m = node.material[i]
+                    const m = node.material[i]
                     m.color.setHex(hexColor)
                 }
                 node.needsUpdate = true
@@ -409,6 +399,7 @@ Obj3d.recursiveSetColor = function(hexColor) {
                 node.material.color.setHex(hexColor)
                 node.needsUpdate = true
             }
+
             /*
             if (node.material.color) {
                 node.material.color.setHex(hexColor)
