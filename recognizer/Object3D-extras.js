@@ -1,4 +1,5 @@
 
+
 THREE.Vector3.prototype.roughlyEquals = function(v2) {
     const v1 = this;
     const d = 0.001;
@@ -364,8 +365,8 @@ Obj3d.aTubeObject = function() {
 
 Obj3d.recursiveSetLineWidth = function(width) {           
     this.traverse( (node) => { 
-        if ( node instanceof THREE.Mesh ) { 
-            node.material.linewidth =  4
+        if (node.material) { 
+            node.material.linewidth =  width
             node.needsUpdate = true
         } 
     } );
@@ -386,17 +387,25 @@ Obj3d.recursiveSetOpacity = function(opacity) {
     } );
 }
 
+Obj3d.recursizeNormalize = function() {
+    this.traverse( (node) => { 
+        if (node.normalize) {
+            node.normalize()
+        }
+    })
+}
+
 Obj3d.recursiveSetColor = function(hexColor) {           
     this.traverse( (node) => { 
         if (node.material) {
             if (node.material.constructor === Array) {
                 for (let i = 0; i < node.material.length; i++) {
                     const m = node.material[i]
-                    m.color.setHex(hexColor)
+                    m.color.set(hexColor)
                 }
                 node.needsUpdate = true
             } else {
-                node.material.color.setHex(hexColor)
+                node.material.color.set(hexColor)
                 node.needsUpdate = true
             }
 
@@ -418,10 +427,11 @@ Obj3d.recursiveSetColor = function(hexColor) {
     } );
 }
 
-THREE.Color.prototype.rainbowHexColor = function() {
+THREE.Color.prototype.pickRainbowColor = function() {
     const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
     const color = colors[Math.floor(Math.random() * colors.length)]
-    return color
+    this.setHex(color)
+    return this
 }
 
 /*
@@ -480,3 +490,78 @@ function thickPolyline(points, lineWidth) {
 }
 */
 
+
+THREE.Object3D.prototype.time = function() {
+    const time = new Date().getTime();
+    //const time = App.shared().time();
+    return time
+}
+
+THREE.Object3D.prototype.vibrateScale = function() {
+    const time = this.time();
+
+    const t = time + this.id;
+    const range = 0.25
+    const maxS = 1 + range
+    const minS = 1 - range
+    const f = (1 + Math.cos(t))/2 
+    const s = f * (maxS - minS) + minS
+    this.scale.set(s, s, s)
+}
+
+THREE.Object3D.prototype.update = function() {
+    if (this._shouldUpdatePhysics) {
+        this.updatePhysics()
+    }
+    
+    if (this._shouldVibrateScale) {
+        this.vibrateScale()
+    }
+    
+    if (this._shouldVibrateLineWidth) {
+        this.vibrateLineWidth()
+    }
+
+    if (this._shouldVibrateColor) {
+        this.vibrateColor()
+    }
+}
+
+
+THREE.Object3D.prototype.vibrateColor = function() {
+    this.recursiveSetColor(new THREE.Color().pickRainbowColor())
+}
+
+THREE.Object3D.prototype.vibrateLineWidth = function() {
+    const t = this.time() + this.id;
+    const w = Math.floor(2 +(1+Math.cos(t/200))*3)
+    this.recursiveSetLineWidth(w)
+}
+
+THREE.Object3D.prototype.velocity = function() {
+    if (!this._velocity) {
+        this._velocity = new THREE.Vector3()
+    }
+    return this._velocity
+}
+
+THREE.Object3D.prototype.rotationalVelocity = function() {
+    if (!this._rotationalVelocity) {
+        this._rotationalVelocity = new THREE.Vector3()
+    }
+    return this._rotationalVelocity
+}
+
+THREE.Object3D.prototype.updatePhysics = function() {
+    this.position.add(this.velocity())
+
+    const rv = this.rotationalVelocity()
+    this.rotation.x += rv.x
+    this.rotation.y += rv.y
+    this.rotation.z += rv.z
+}
+
+Array.prototype.pick = function() {
+    const index = Math.floor(this.length * Math.random())
+    return this[index]
+}
