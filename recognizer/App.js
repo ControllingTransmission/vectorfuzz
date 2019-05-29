@@ -33,7 +33,8 @@ class App extends BaseObject {
         //this.newSlot("tunnelGrid", TunnelGrid.clone());
         
         this.newSlot("keyboard", {});
-        this.newSlot("font", Font.clone().setPath("fonts/helvetiker_bold.typeface.json").load());
+        //this.newSlot("font", Font.clone().setPath("fonts/helvetiker_bold.typeface.json").load());
+        this.newSlot("font", Font.clone().setPath("fonts/Hyperspace_Regular.json").load());
 
         //this.floorGrid().setChunkClass(StarFieldChunk)
         this.setup()
