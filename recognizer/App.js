@@ -36,8 +36,11 @@ class App extends BaseObject {
         //this.newSlot("font", Font.clone().setPath("fonts/helvetiker_bold.typeface.json").load());
         this.newSlot("font", Font.clone().setPath("fonts/Hyperspace_Regular.json").load());
 
+
         //this.floorGrid().setChunkClass(StarFieldChunk)
         this.setup()
+
+        this.scene().add(this.font().objectForText("CONTROLLING TRANSMISSION"))
     }
 
     newSpotlight() {

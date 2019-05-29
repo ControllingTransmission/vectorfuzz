@@ -17,6 +17,7 @@ class Font extends BaseObject {
         this.newSlot("curveSegments", 0);
         this.newSlot("color", new THREE.Color(0xFFFF00));
         this.newSlot("opacity",  0.9);
+        this.newSlot("waitingObjects",  []);
     }
 
 
@@ -29,6 +30,7 @@ class Font extends BaseObject {
             ( xhr )   => { this.onProgress(xhr) }, 
             ( error ) => { this.onError(error) }
         );
+        return this
     }
 
     onProgress(xhr) {
@@ -38,18 +40,31 @@ class Font extends BaseObject {
     onLoad(font) {
         this.setIsLoaded(true)
         this.setFont(font)
-        const fontMesh = this.meshForText("DON'T BLINK OR YOU'LL DIE!")
-        fontMesh.rotation.y = Math.PI
-
+        this.waitingObjects().forEach((obj) => { this.finishObject(obj) })
     }
 
     onError(error) {
         console.log("Font error:", error );
     }
 
+    // --------------------------------
+
+    objectForText(text) {
+        const obj = new THREE.Object3D()
+        obj._text = text
+        if (this.isLoaded()) {
+            this.finishObject(obj)
+        } else {
+            this.waitingObjects().push(obj)
+        }
+        return obj
+    }
+
+    finishObject(obj) {
+        obj.add(this.meshForText(obj._text))
+    }
+
     meshForText(text) {
-        //var loader = new THREE.FontLoader(); 
-        //var font = loader.parse(helveticaRegular); 
         const textGeometry = new THREE.TextGeometry( text, { 
             font: this.font(), 
             size: this.size(), 
