@@ -1,10 +1,9 @@
 "use strict"
 
-import { BaseObject } from '../BaseObject.js';
-import { Grid } from './Grid.js';
-import { App } from '../App.js';
-import { Models } from '../Models.js';
-import { Chunk } from './Chunk.js';
+//import { Grid } from '../Grid.js';
+//import { App } from '../../App.js';
+//import { Models } from '../../Models.js';
+//import { Chunk } from '../Chunk.js';
 
 class FloorChunk extends Chunk {
     init() {
@@ -12,8 +11,6 @@ class FloorChunk extends Chunk {
         this.newSlot("lineCount", 30)
         this.setRange(10)
     }
-
-
 
     generate() {
         //console.log(" generating chunk " + this.key())
@@ -59,5 +56,7 @@ class FloorChunk extends Chunk {
     }
 
 }
+
+window.FloorChunk = FloorChunk
 
 export { FloorChunk }

@@ -427,6 +427,32 @@ Obj3d.recursiveSetColor = function(hexColor) {
     } );
 }
 
+Obj3d.getBoundingBox = function(hexColor) {           
+    const geometry = this.firstGeometry()
+    geometry.computeBoundingBox();
+    const boundingBox = geometry.boundingBox.clone();
+    console.log('font bounding box coordinates: ' + 
+        '(' + boundingBox.min.x + ', ' + boundingBox.min.y + ', ' + boundingBox.min.z + '), ' + 
+        '(' + boundingBox.max.x + ', ' + boundingBox.max.y + ', ' + boundingBox.max.z + ')' );
+    return boundingBox
+}
+
+Obj3d.getWidth = function() {
+    const box = this.getBoundingBox()
+     return box.max.x - box.min.x;
+}
+
+Obj3d.getHeight = function() {
+    const box = this.getBoundingBox()
+     return box.max.y - box.min.y;
+}
+
+Obj3d.getDepth = function() {
+    const box = this.getBoundingBox()
+     return box.max.z - box.min.z;
+}
+
+
 THREE.Color.prototype.pickRainbowColor = function() {
     const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00];
     const color = colors[Math.floor(Math.random() * colors.length)]

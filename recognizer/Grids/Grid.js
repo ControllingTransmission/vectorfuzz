@@ -139,4 +139,6 @@ class Grid extends BaseObject {
 
 }
 
+window.Grid = Grid
+
 export { Grid }

@@ -3,7 +3,6 @@
 import { BaseObject } from '../BaseObject.js';
 import { Grid } from './Grid.js';
 import { App } from '../App.js';
-import { Models } from '../Models.js';
 
 class Chunk extends BaseObject {
     init() {
@@ -160,5 +159,6 @@ class Chunk extends BaseObject {
 
 }
 
+window.Chunk = Chunk
 
 export { Chunk }

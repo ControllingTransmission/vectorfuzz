@@ -1,6 +1,6 @@
 "use strict"
 
-import { Chunk } from './Chunk.js';
+import { Chunk } from '../Chunk.js';
 
 class StarFieldChunk extends Chunk {
     init() {
@@ -49,5 +49,7 @@ class StarFieldChunk extends Chunk {
     }
 
 }
+
+window.StarFieldChunk = StarFieldChunk
 
 export { StarFieldChunk }

@@ -1,8 +1,8 @@
 
 "use strict"
 
-import { BaseObject } from './BaseObject.js';
-import { App } from './App.js';
+//import { BaseObject } from './BaseObject.js';
+//import { App } from './App.js';
 
 class Font extends BaseObject {
 
@@ -25,7 +25,7 @@ class Font extends BaseObject {
         const loader = new THREE.FontLoader();
         this.setLoader(loader)
         loader.load(
-            this.path(),
+            "./fonts/data/" + this.path(),
             ( font )  => { this.onLoad(font) },
             ( xhr )   => { this.onProgress(xhr) }, 
             ( error ) => { this.onError(error) }
@@ -52,11 +52,14 @@ class Font extends BaseObject {
     objectForText(text) {
         const obj = new THREE.Object3D()
         obj._text = text
+
         if (this.isLoaded()) {
             this.finishObject(obj)
         } else {
             this.waitingObjects().push(obj)
         }
+
+        // use obj.getWidth() to get width of text once loaded
         return obj
     }
 
@@ -74,25 +77,10 @@ class Font extends BaseObject {
         const textMaterial = new THREE.MeshBasicMaterial( { color: this.color(), opacity: this.opacity() } ); 
         const textMesh = new THREE.Mesh( textGeometry, textMaterial );
         textMesh.rotation.y = Math.PI
-
-        /*
-        fontMesh.geometry.computeBoundingBox();
-        const boundingBox = fontMesh.geometry.boundingBox.clone();
-        console.log('font bounding box coordinates: ' + 
-            '(' + boundingBox.min.x + ', ' + boundingBox.min.y + ', ' + boundingBox.min.z + '), ' + 
-            '(' + boundingBox.max.x + ', ' + boundingBox.max.y + ', ' + boundingBox.max.z + ')' );
-        App.shared().scene().add( fontMesh );
-        */
-
         return textMesh
     }
 }
 
-        // Do some optional calculations. This is only if you need to get the
-        // width of the generated text
-        //textGeom.computeBoundingBox();
-        //textGeom.textWidth = textGeom.boundingBox.max.x - textGeom.boundingBox.min.x;
-
-
+window.Font = Font
 
 export { Font }

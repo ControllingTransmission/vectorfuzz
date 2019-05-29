@@ -1,7 +1,7 @@
 
 "use strict"
 
-import { BaseObject } from './BaseObject.js';
+//import { BaseObject } from './BaseObject.js';
 import { Model } from './Model.js';
 
 class Models extends BaseObject {
@@ -29,11 +29,13 @@ class Models extends BaseObject {
     }
 
     loadModelNamed(aName) {
-        const path = "./models/" + aName;
+        const path = "./models/data/" + aName;
         const model = Model.clone().setPath(path).load();
         this.dict()[aName] = model
         return model
     }
 }
+
+window.Models = Models
 
 export { Models }

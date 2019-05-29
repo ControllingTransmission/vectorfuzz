@@ -63,4 +63,6 @@ class BaseObject {
     }
 }
 
+window.BaseObject = BaseObject
+
 export { BaseObject }

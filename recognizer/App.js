@@ -2,14 +2,11 @@
 "use strict"
 
 import { BaseObject } from './BaseObject.js';
-import { Models } from './Models.js';
-import { Model } from './Model.js';
-import { Grid } from './Grids/Grid.js';
-import { FloorGrid } from './Grids/FloorGrid.js';
-//import { Chunk } from './Grids/Chunk.js';
-import { StarFieldChunk } from './Grids/StarFieldChunk.js';
+import defaultExport0 from './models/_Imports.js';
+import defaultExport1 from './Grids/_Imports.js';
 import { ThreeBSP } from './external_libraries/ThreeCSG.js'
-import { Font } from './Font.js'
+import defaultExport2 from './Grids/_Imports.js'
+import defaultExport3 from './fonts/_Imports.js'
 
 
 class App extends BaseObject {
@@ -33,8 +30,12 @@ class App extends BaseObject {
         //this.newSlot("tunnelGrid", TunnelGrid.clone());
         
         this.newSlot("keyboard", {});
+
         //this.newSlot("font", Font.clone().setPath("fonts/helvetiker_bold.typeface.json").load());
-        this.newSlot("font", Font.clone().setPath("fonts/Hyperspace_Regular.json").load());
+        //this.newSlot("font", Font.clone().setPath("fonts/Beef'd_Regular.json").load());
+        //this.newSlot("font", Font.clone().setPath("fonts/G-Type_Regular.json").load());
+        //this.newSlot("font", Font.clone().setPath("fonts/Hyperspace_Regular.json").load());
+        this.newSlot("font", Font.clone().setPath("Hyperspace_Bold.json").load());
 
 
         //this.floorGrid().setChunkClass(StarFieldChunk)
@@ -422,5 +423,6 @@ class App extends BaseObject {
 
 }
 
+window.App = App
 
 export { App }

@@ -1,7 +1,7 @@
 
 "use strict"
 
-import { BaseObject } from './BaseObject.js';
+//import { BaseObject } from './BaseObject.js';
 
 class Model extends BaseObject {
     init() {
@@ -66,5 +66,7 @@ class Model extends BaseObject {
     }
 
 }
+
+window.Model = Model
 
 export { Model }
