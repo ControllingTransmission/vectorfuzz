@@ -3,10 +3,9 @@
 
 import { BaseObject } from './BaseObject.js';
 import defaultExport0 from './models/_Imports.js';
-import defaultExport1 from './Grids/_Imports.js';
+import defaultExport1 from './grids/_Imports.js';
+import defaultExport2 from './fonts/_Imports.js'
 import { ThreeBSP } from './external_libraries/ThreeCSG.js'
-import defaultExport2 from './Grids/_Imports.js'
-import defaultExport3 from './fonts/_Imports.js'
 
 
 class App extends BaseObject {
@@ -25,23 +24,18 @@ class App extends BaseObject {
         this.newSlot("mainObject", null);
         this.newSlot("spotlight", null);
 
-        this.newSlot("grid", Grid.clone());
+        this.newSlot("grid", TypeGrid.clone());
         this.newSlot("floorGrid", FloorGrid.clone());
         //this.newSlot("tunnelGrid", TunnelGrid.clone());
         
         this.newSlot("keyboard", {});
+        this.newSlot("shouldOrbit", false);
 
-        //this.newSlot("font", Font.clone().setPath("fonts/helvetiker_bold.typeface.json").load());
-        //this.newSlot("font", Font.clone().setPath("fonts/Beef'd_Regular.json").load());
-        //this.newSlot("font", Font.clone().setPath("fonts/G-Type_Regular.json").load());
-        //this.newSlot("font", Font.clone().setPath("fonts/Hyperspace_Regular.json").load());
-        this.newSlot("font", Font.clone().setPath("Hyperspace_Bold.json").load());
-
-
-        //this.floorGrid().setChunkClass(StarFieldChunk)
         this.setup()
 
-        this.scene().add(this.font().objectForText("CONTROLLING TRANSMISSION"))
+
+        //this.newSlot("font", Fonts.shared().fontNamed("Hyperspace_Bold.json"));
+        //this.scene().add(this.font().objectForText("CONTROLLING TRANSMISSION"))
     }
 
     newSpotlight() {
@@ -119,6 +113,12 @@ class App extends BaseObject {
             cam.velocity.x -= r * v.z
             cam.velocity.z += r * v.x
         }
+
+        if (this.keyboard()["O"]) {
+            this.setShouldOrbit(true)
+        } else {
+            this.setShouldOrbit(false)
+        }
     }
 
     setupScene() {
@@ -174,25 +174,20 @@ class App extends BaseObject {
     setup() {     
         this.setupCamera()
         this.setupScene()
-
-        const ambientLight = new THREE.AmbientLight(0xffffff);
-        this.scene().add(ambientLight);
         
         //this.setupWebGLRenderer()
         this.setupSVGRenderer()
         //this.setupCanvasRenderer()
 
-        // objects
+        if (!this.isSVG()) {
+            const ambientLight = new THREE.AmbientLight(0xffffff);
+            this.scene().add(ambientLight);
+        }
+        
+        this.setupEvents()
+    }
 
-        //"Hg_carrier", "carrier", "Recognizer"
-        /*
-        const group = Models.shared().objectNamed("Recognizer.obj")
-        this.scene().add(group)
-        this.lookAtObject(group)
-        */
-
-        //this.setupFloor()
-
+    setupEvents() {
         window.addEventListener("resize", (event) => { this.onWindowResize(event) }, false);
         this.onWindowResize()
 
@@ -264,53 +259,6 @@ class App extends BaseObject {
 
     // ------------------------------------------
 
-
-    setupTestObject() {
-        const geometry = new THREE.CubeGeometry(100,100,100);
-        //geometry.normalize()
-        
-        //var geometry = new THREE.IcosahedronGeometry(100, 0)
-        //var geometry = new THREE.OctahedronGeometry(100, 0)
-        //var geometry = new THREE.TetrahedronGeometry(100, 0)
-        //var geometry = new THREE.DodecahedronGeometry(100, 0)
-
-        /*
-        const material = new THREE.MeshPhongMaterial( { 
-                color: 0xffffff, 
-                specular: 0x333300, 
-                shininess: 30, 
-                flatShading: true
-        }) 
-        */
-
-        const material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.1, linewidth: 1 } );
-
-
-        const group = new THREE.Object3D()
-        group.position.set(0,0,0)
-
-        const object = new THREE.Mesh(geometry, material);
-        object.position.set(0,0,0)
-        object.scale.multiplyScalar( 0.8 );
-        group.add( object );
-
-        /*
-        const object2 = new THREE.Mesh(geometry, material);
-        object2.position.set(5,0,0)
-        object2.scale.multiplyScalar( 1.01 );
-        group.add( object2 );
-        */
-
-        //group.recursiveSetColor(0x111111)
-        //group.recursiveSetOpacity(0)
-        const outline = group.asEdgesObject(0x0000ff, 3, 3)
-        this.scene().add( outline );
-        this.scene().add( group );
-
-        //group.addOutline()
-        //this.scene().add( group );
-    }
-
     
     updateCameraForTargetPosition() {
         const cam = this.camera()
@@ -323,7 +271,7 @@ class App extends BaseObject {
             const td = cam.targetDistance
             const f = (d-td)/d
 
-            const r = 0.05
+            const r = 0.085
             cam.position.x += f * diff.x * r;
             cam.position.y += f * diff.y * r;
             cam.position.z += f * diff.z * r;
@@ -400,10 +348,14 @@ class App extends BaseObject {
         }
     }
 
+    isSVG() {
+        return this.renderer().constructor === THREE.SVGRenderer
+    }
+
     animate() {
         requestAnimationFrame( () => { this.animate() } );
         this.render();
-        if (this.renderer().constructor === THREE.SVGRenderer) {
+        if (this.isSVG()) {
             this.addSVGFilters()
         }
     }

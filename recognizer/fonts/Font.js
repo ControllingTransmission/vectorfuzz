@@ -20,7 +20,6 @@ class Font extends BaseObject {
         this.newSlot("waitingObjects",  []);
     }
 
-
     load() {
         const loader = new THREE.FontLoader();
         this.setLoader(loader)
@@ -34,7 +33,7 @@ class Font extends BaseObject {
     }
 
     onProgress(xhr) {
-        console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+        //console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
     }
 
     onLoad(font) {
@@ -59,12 +58,13 @@ class Font extends BaseObject {
             this.waitingObjects().push(obj)
         }
 
-        // use obj.getWidth() to get width of text once loaded
         return obj
     }
 
     finishObject(obj) {
-        obj.add(this.meshForText(obj._text))
+        const mesh = this.meshForText(obj._text)
+        obj.add(mesh)
+        mesh.position.x -= obj.getWidth()/2
     }
 
     meshForText(text) {
@@ -76,7 +76,7 @@ class Font extends BaseObject {
         } ); 
         const textMaterial = new THREE.MeshBasicMaterial( { color: this.color(), opacity: this.opacity() } ); 
         const textMesh = new THREE.Mesh( textGeometry, textMaterial );
-        textMesh.rotation.y = Math.PI
+        //textMesh.rotation.y = Math.PI
         return textMesh
     }
 }

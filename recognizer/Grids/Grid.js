@@ -10,10 +10,10 @@ THREE.Vector3.prototype.key = function() {
     //return this.x + "," + this.z
 }
 
-THREE.Vector3.prototype.surroundingPoints = function() {
+THREE.Vector3.prototype.surroundingPoints = function(dx,dy) {
     const points = [];
-    const xSize = 2
-    const zSize = 2
+    const xSize = dx
+    const zSize = dy
     for (let x = -xSize; x <= xSize; x++) {
         for (let z = -zSize; z <= zSize; z++) {
             //const isCenter = (x === 0 && z === 0);
@@ -60,7 +60,7 @@ class Grid extends BaseObject {
         const gp = this.currentGridPoint()
         //console.log("gp = ", gp.key())
 
-        gp.surroundingPoints().forEach((p) => {
+        gp.surroundingPoints(1,1).forEach((p) => {
             this.generateChunkForGridPointIfNeeded(p)
         })
         //console.log("---")

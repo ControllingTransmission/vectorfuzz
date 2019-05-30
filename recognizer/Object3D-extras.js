@@ -431,9 +431,11 @@ Obj3d.getBoundingBox = function(hexColor) {
     const geometry = this.firstGeometry()
     geometry.computeBoundingBox();
     const boundingBox = geometry.boundingBox.clone();
+    /*
     console.log('font bounding box coordinates: ' + 
         '(' + boundingBox.min.x + ', ' + boundingBox.min.y + ', ' + boundingBox.min.z + '), ' + 
         '(' + boundingBox.max.x + ', ' + boundingBox.max.y + ', ' + boundingBox.max.z + ')' );
+    */
     return boundingBox
 }
 
