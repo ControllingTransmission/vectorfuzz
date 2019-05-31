@@ -20,11 +20,16 @@ class Mutant extends BaseObject {
         this.newSlot("materialDict", { color: 0xFF0000, opacity: 1, linewidth: 8 });
         this.newSlot("maxMutationTime", 55);
         this.newSlot("mutationTime", 0);
+        this.newSlot("colorCount", 0);
         this.pickMeshes()
     }
 
+    colors() {
+        return [0xFF0000, 0x00FF00, 0xFFFF00, 0xFF00FF, 0xFF6666, 0x0000FF]
+    }
+
     material() {
-        this.materialDict().color = [0xFF0000, 0x00FF00, 0xFFFF00, 0xFF00FF, 0xFF6666].pick()
+        this.materialDict().color = this.colors().pick()
         return new THREE.LineBasicMaterial(this.materialDict() );
     }
 
@@ -74,6 +79,9 @@ class Mutant extends BaseObject {
     }
 
     update() {
+        if (App.shared().camera().targetObject !== this.object()) {
+            return 
+        }
         this._time += 1
 
         if (this._time % 2 == 0) {
@@ -91,6 +99,11 @@ class Mutant extends BaseObject {
             this.object().scale.set(s, s, s)
             if (this.mutationTime() === Math.floor(this.maxMutationTime()/2) ) {
                 this.pickMeshes()
+                /*
+                this.setColorCount(this.colorCount()+1)
+                const newColor = this.colors()[this.colorCount() % this.colors().length]
+                this.object().recursiveSetColor(newColor)
+                */
             }
         }
     }

@@ -6,7 +6,7 @@ import { TunnelChunk } from './TunnelChunk.js';
 class TunnelGrid extends Grid {
     init() {
         super.init()
-        this.setChunkSize(40000)
+        this.setChunkSize(100000)
         this.setChunkClass(TunnelChunk)
     }
 }

@@ -6,7 +6,7 @@ import { StarFieldChunk } from './StarFieldChunk.js';
 class StarFieldGrid extends Grid {
     init() {
         super.init()
-        this.setChunkSize(100000)
+        this.setChunkSize(300000)
         this.setChunkClass(StarFieldChunk)
     }
 }

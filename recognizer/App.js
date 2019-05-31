@@ -29,8 +29,9 @@ class App extends BaseObject {
         this.newSlot("spotlight", null);
 
         this.newSlot("grid", Grid.clone());
-        //this.newSlot("floorGrid", FloorGrid.clone());
-        this.newSlot("floorGrid", StarFieldGrid.clone());
+        this.newSlot("floorGrid", FloorGrid.clone());
+        this.floorGrid().setIsEnabled(false)
+        this.newSlot("starGrid", StarFieldGrid.clone());
         this.newSlot("tunnelGrid", TunnelGrid.clone());
         this.newSlot("showTunnel", true);
         
@@ -112,7 +113,6 @@ class App extends BaseObject {
                 to._owner.mutate()
             }
         }
-
     
         if (char === "K") {
             const to = this.camera().targetObject
@@ -137,8 +137,24 @@ class App extends BaseObject {
             //console.log("n = ", n)
             if (n < this.objects().length) {
                 this.camera().targetObject = this.objects()[n].object()
-                this.chooseRandomCameraPosition()
+                if (!this.tunnelGrid().isEnabled()) {
+                    this.chooseRandomCameraPosition()
+                }
             }
+        }
+
+        if (char === "J") {
+            this.tunnelGrid().toggleEnabled()
+            if (this.tunnelGrid().isEnabled()) {
+                const cam = this.camera()
+                const y = 500
+                cam.position.set(0, y, 10000)
+                cam.lookAt(new THREE.Vector3(0,y,10000))
+            }
+
+            this.starGrid().setIsEnabled(this.tunnelGrid().isEnabled())
+            this.floorGrid().setIsEnabled(!this.tunnelGrid().isEnabled())
+
         }
         
     }
@@ -148,6 +164,7 @@ class App extends BaseObject {
 
         const cam = this.camera();
 
+        /*
         if (this.keyboard()["S"]) { // rotate left
             cam.rotationalVelocity.y -= 0.01
         }
@@ -155,6 +172,7 @@ class App extends BaseObject {
         if (this.keyboard()["F"]) { // rotate right
             cam.rotationalVelocity.y += 0.01
         }
+        */
 
         const v = new THREE.Vector3()
         cam.getWorldDirection(v)
@@ -172,6 +190,7 @@ class App extends BaseObject {
             cam.velocity.z -= r * v.z
         }
 
+        /*
         r = 10
         if (this.keyboard()["A"]) { // strafe left
             cam.velocity.x += r * v.z
@@ -182,14 +201,9 @@ class App extends BaseObject {
             cam.velocity.x -= r * v.z
             cam.velocity.z += r * v.x
         }
+        */
 
-        if (this.keyboard()["J"]) { // strafe right
-            this.tunnelGrid().clear()
-        }
 
-        if (this.keyboard()["J"]) { // strafe right
-            this.tunnelGrid().clear()
-        }
 
         /*
         if (this.keyboard()["O"]) {
@@ -221,6 +235,11 @@ class App extends BaseObject {
         cam.position.copy(this.randomPlanePosition())
         const max = 100000
         cam.position.y = Math.random() * max / 2;
+
+        if (this.tunnelGrid().isEnabled()) {
+            cam.position.y = 300
+            cam.position.x = 0
+        }
     }
 
     chooseCameraTargetPosition() {
@@ -235,6 +254,8 @@ class App extends BaseObject {
         cam.targetObject = obj
 
         this.chooseRandomCameraPosition()
+
+
 
         cam.lookAt(cam.targetObject.position)
     }
@@ -300,13 +321,32 @@ class App extends BaseObject {
         mutant.object().position.y = 500
         this.addObject(mutant)
 
+        const cs = this.tunnelGrid().chunkSize()
+        const offset = -cs/2
+
+        let label = this.addTextObject("DONT BLINK")
+        label.object().position.x = 0
+        label.object().position.z = cs + offset
+
+        label = this.addTextObject("OR")
+        label.object().position.x = 0
+        label.object().position.z = cs*2 + offset
+
+        label = this.addTextObject("YOULL DIE")
+        label.object().position.x = 0
+        label.object().position.z = cs*3 + offset
+        label.object()._shouldVibrateColor = true
+        label.object()._shouldVibrateScale = true
         
-        this.addTextObject("DONT BLINK")
-        this.addTextObject("OR")
-        const label = this.addTextObject("YOULL DIE").object()
-        label._shouldVibrateColor = true
-        label._shouldVibrateScale = true
-        
+        /*
+        const obj = Models.shared().objectNamed("Recognizer.obj")
+        obj.object = function() { return this }
+        const s = 0.75
+        obj.scale.set(s, s, s)
+        obj.position.y -= 100
+        this.addObject(obj)
+        */
+
         /*
         this.addTextObject("DONT")
         this.addTextObject("BLINK")
@@ -445,6 +485,7 @@ class App extends BaseObject {
         //this.grid().update()
         this.tunnelGrid().update()
         this.floorGrid().update()
+        this.starGrid().update()
 
         this.objects().forEach((obj) => { obj.update() })
 

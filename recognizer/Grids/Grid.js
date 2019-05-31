@@ -33,7 +33,21 @@ class Grid extends BaseObject {
         this.newSlot("grid", {});
         this.newSlot("chunkClass", Chunk)
         this.newSlot("chunkSize", 30000);
+        this.newSlot("isEnabled", true);
         //this.newSlot("oldGrid", {});
+    }
+
+    toggleEnabled() {
+        this.setIsEnabled(!this.isEnabled())
+        return this
+    }
+
+    setIsEnabled(aBool) {
+        this._isEnabled = aBool
+        if (!aBool) {
+            this.clear()
+        }
+        return this
     }
 
     // --- points ---
@@ -57,6 +71,10 @@ class Grid extends BaseObject {
     // --- update ---
 
     update() {
+        if (!this.isEnabled()) {
+            return 
+        }
+
         const gp = this.currentGridPoint()
         //console.log("gp = ", gp.key())
 

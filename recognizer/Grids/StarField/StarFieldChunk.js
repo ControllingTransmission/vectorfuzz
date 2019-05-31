@@ -6,7 +6,7 @@ class StarFieldChunk extends Chunk {
     init() {
         super.init()
         this.newSlot("starCount", 40)
-        this.setRange(4)
+        this.setRange(2)
     }
 
     randomPos() {
@@ -42,7 +42,8 @@ class StarFieldChunk extends Chunk {
         geometry.vertices.push(new THREE.Vector3(- size/2, 0, 0 ) );
         geometry.vertices.push(new THREE.Vector3(  size/2, 0, 0 ) );
 
-        const color = 0x0000ff;
+        //const color = 0x0000ff;
+        const color = 0xFFFFFF;
         const linesMaterial = new THREE.LineBasicMaterial( { color: color, opacity: 1, linewidth: 4 } );
         const line = new THREE.Line( geometry, linesMaterial );
         return line

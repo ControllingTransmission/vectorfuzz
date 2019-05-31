@@ -20,10 +20,10 @@ class TunnelChunk extends Chunk {
         const zz = this.gridPosition().z 
 
         const size = 500
-        const radius = size * 0.5 * 2
+        const radius = size * 0.5 * 10
         const topRadius = radius
         const bottomRadius = radius
-        const height = this.chunkSize()/5
+        const height = 10000
         const radialSegments = this.randomInt(3, 15)
         const heightSegments = 1 //this.randomInt(1, 30)
         const openEnded = true

@@ -9,7 +9,7 @@ class FloorChunk extends Chunk {
     init() {
         super.init()
         this.newSlot("lineCount", 30)
-        this.setRange(10)
+        this.setRange(4)
     }
 
     generate() {
