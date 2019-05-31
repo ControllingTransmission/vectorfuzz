@@ -114,11 +114,13 @@ class App extends BaseObject {
             }
         }
     
-        if (char === "K") {
+        if (char === "N") {
             const to = this.camera().targetObject
-            to._shouldVibrateColor = !to._shouldVibrateColor
-            to._shouldVibrateScale = !to._shouldVibrateScale
-            to._shouldVibrateLineWidth = !to._shouldVibrateLineWidth
+            if(to) {
+                to._shouldVibrateColor = !to._shouldVibrateColor
+                to._shouldVibrateScale = !to._shouldVibrateScale
+                to._shouldVibrateLineWidth = !to._shouldVibrateLineWidth
+            }
         }
 
         //console.log("char = '" + char + "'")
@@ -154,8 +156,30 @@ class App extends BaseObject {
 
             this.starGrid().setIsEnabled(this.tunnelGrid().isEnabled())
             this.floorGrid().setIsEnabled(!this.tunnelGrid().isEnabled())
-
         }
+
+
+        if (char === "G") {
+            this.starGrid().setIsEnabled(false)
+            this.floorGrid().setIsEnabled(false)
+            this.tunnelGrid().setIsEnabled(false)
+        }
+
+        if (char === "H") {
+            this.floorGrid().setIsEnabled(true)
+            this.starGrid().setIsEnabled(false)
+            this.tunnelGrid().setIsEnabled(false)
+        }
+
+    
+        /*
+        if (char === "T") {
+            const to = this.camera().targetObject
+            if(to && to.toggleSimple) {
+                to.toggleSimple()
+            }
+        }
+        */
         
     }
 
@@ -232,7 +256,11 @@ class App extends BaseObject {
 
     chooseRandomCameraPosition() {
         const cam = this.camera()
-        cam.position.copy(this.randomPlanePosition())
+        const to = cam.targetObject
+        if (to) {
+            cam.position.copy(to.position)
+        }
+        cam.position.add(this.randomPlanePosition())
         const max = 100000
         cam.position.y = Math.random() * max / 2;
 
@@ -355,11 +383,14 @@ class App extends BaseObject {
         */
 
 
-        /*
-        const solid = PlatonicSolid.clone().pickNumber()
-        solid.object().position.z = -200000
-        this.addObject(solid)
-        */
+        let zz = -2100000
+        for (let i = 0; i < 5; i++) {
+            const solid = PlatonicSolid.clone().setNumber(i)
+            solid.object().position.z = zz
+            zz += cs
+            this.addObject(solid)
+        }
+    
 
     }
 
