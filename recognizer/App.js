@@ -6,7 +6,11 @@ import defaultExport0 from './models/_Imports.js';
 import defaultExport1 from './grids/_Imports.js';
 import defaultExport2 from './fonts/_Imports.js'
 import { ThreeBSP } from './external_libraries/ThreeCSG.js'
-
+import CSG from './external_libraries/THREE-CSGMesh-master/CSGMesh.js'
+import { Mutant } from './Mutant.js'
+import { Label } from './Label.js'
+import { LabelZ } from './LabelZ.js'
+import { PlatonicSolid } from './PlatonicSolid.js'
 
 class App extends BaseObject {
 
@@ -24,19 +28,20 @@ class App extends BaseObject {
         this.newSlot("mainObject", null);
         this.newSlot("spotlight", null);
 
-        this.newSlot("grid", TypeGrid.clone());
-        this.newSlot("floorGrid", FloorGrid.clone());
-        //this.newSlot("tunnelGrid", TunnelGrid.clone());
+        this.newSlot("grid", Grid.clone());
+        //this.newSlot("floorGrid", FloorGrid.clone());
+        this.newSlot("floorGrid", StarFieldGrid.clone());
+        this.newSlot("tunnelGrid", TunnelGrid.clone());
+        this.newSlot("showTunnel", true);
         
         this.newSlot("keyboard", {});
         this.newSlot("shouldOrbit", false);
+        this.newSlot("objects", []);
 
         this.setup()
-
-
-        //this.newSlot("font", Fonts.shared().fontNamed("Hyperspace_Bold.json"));
-        //this.scene().add(this.font().objectForText("CONTROLLING TRANSMISSION"))
     }
+
+    /*
 
     newSpotlight() {
         const light = new THREE.SpotLight(0xaaaaaa);
@@ -49,6 +54,7 @@ class App extends BaseObject {
         //light.shadowCameraVisible = true;
         return light       
     }
+    */
 
     onKeyUp(event) {
         const char = String.fromCharCode(event.keyCode)
@@ -67,12 +73,74 @@ class App extends BaseObject {
 
     onFirstCharDown(char) {
         if (char === " ") {
-            this.chooseCameraTargetPosition()
+            //this.chooseCameraTargetPosition()
         }
 
         if (char === "R") {
             //this.rotateAroundObject()
         }
+
+        if (char === "O") {
+            this.setShouldOrbit(!this.shouldOrbit())
+        }
+
+        if (char === "C") {
+            const to = this.camera().targetObject
+            if (to) {
+                to._shouldVibrateColor = !to._shouldVibrateColor
+            }
+        }
+
+
+        if (char === "X") {
+            const to = this.camera().targetObject
+            if (to) {
+                to._shouldVibrateScale = !to._shouldVibrateScale
+            }
+        }
+
+        if (char === "V") {
+            const to = this.camera().targetObject
+            if (to) {
+                to._shouldVibrateLineWidth = !to._shouldVibrateLineWidth
+            }
+        }
+
+        if (char === "M") {
+            const to = this.camera().targetObject
+            if (to && to._owner && to._owner.mutate) {
+                to._owner.mutate()
+            }
+        }
+
+    
+        if (char === "K") {
+            const to = this.camera().targetObject
+            to._shouldVibrateColor = !to._shouldVibrateColor
+            to._shouldVibrateScale = !to._shouldVibrateScale
+            to._shouldVibrateLineWidth = !to._shouldVibrateLineWidth
+        }
+
+        //console.log("char = '" + char + "'")
+
+        if (char === "½") {
+            this.camera().targetDistance = 0
+        }
+
+        if (char === "»") {
+            this.camera().targetDistance = 3000
+        }
+
+        
+        const n = Number.parseInt(char)
+        if (!isNaN(n)) {
+            //console.log("n = ", n)
+            if (n < this.objects().length) {
+                this.camera().targetObject = this.objects()[n].object()
+                this.chooseRandomCameraPosition()
+            }
+        }
+        
     }
 
     updateKeyActions() {
@@ -93,8 +161,9 @@ class App extends BaseObject {
 
         let r = 100
         if (this.keyboard()["E"]) { // move forward
-            cam.velocity.x += r * v.x
-            cam.velocity.z += r * v.z
+            const f = 0.6
+            cam.velocity.x += r * v.x * f
+            cam.velocity.z += r * v.z * f 
             this.camera().targetObject = null
     }
 
@@ -114,11 +183,21 @@ class App extends BaseObject {
             cam.velocity.z += r * v.x
         }
 
+        if (this.keyboard()["J"]) { // strafe right
+            this.tunnelGrid().clear()
+        }
+
+        if (this.keyboard()["J"]) { // strafe right
+            this.tunnelGrid().clear()
+        }
+
+        /*
         if (this.keyboard()["O"]) {
             this.setShouldOrbit(true)
         } else {
             this.setShouldOrbit(false)
         }
+        */
     }
 
     setupScene() {
@@ -128,8 +207,24 @@ class App extends BaseObject {
         //this.scene().fog = new THREE.Fog( 0x000000, 0, 15000);
     }
 
+    randomPlanePosition() {
+        const max = 100000
+        const p = new THREE.Vector3();
+        p.x += Math.random() * max - max/2;
+        p.y = 0;
+        p.z += Math.random() * max - max/2;
+        return p
+    }
+
+    chooseRandomCameraPosition() {
+        const cam = this.camera()
+        cam.position.copy(this.randomPlanePosition())
+        const max = 100000
+        cam.position.y = Math.random() * max / 2;
+    }
+
     chooseCameraTargetPosition() {
-        const obj = this.grid().pickObject()
+        const obj = this.objects().pick().object()
 
         if (!obj) {
             console.log("no object picked")
@@ -138,17 +233,10 @@ class App extends BaseObject {
         
         const cam = this.camera()
         cam.targetObject = obj
-        cam.targetPosition = new THREE.Vector3()
-        cam.targetPosition.copy(obj.position)
-        cam.targetDistance = 3000
 
-        const max = 100000
-        cam.position.x += Math.random() * max - max/2;
-        cam.position.y = Math.random() * max / 2;
-        cam.position.z += Math.random() * max - max/2;
+        this.chooseRandomCameraPosition()
 
-        cam.lookAt(cam.targetPosition)
-        // pick a target rotation facing the target position
+        cam.lookAt(cam.targetObject.position)
     }
 
     setupCamera() {
@@ -156,13 +244,14 @@ class App extends BaseObject {
         this.camera().velocity = new THREE.Vector3(0,0,0)
         this.camera().friction = 0.9
 
-        this.camera().position.y = 0
+        this.camera().position.y = 500
         this.camera().position.z = -6000
         this.lookForward()
 
         this.camera().rotationalVelocity = new THREE.Vector3()
         this.camera().rotationalFriction = 0.9
 
+        this.camera().targetDistance = 3000
     }
 
     lookForward() {
@@ -183,8 +272,9 @@ class App extends BaseObject {
             const ambientLight = new THREE.AmbientLight(0xffffff);
             this.scene().add(ambientLight);
         }
-        
+
         this.setupEvents()
+        this.setupOjects()
     }
 
     setupEvents() {
@@ -195,32 +285,53 @@ class App extends BaseObject {
         document.body.addEventListener("keyup", (event) => this.onKeyUp(event), false);
     }
 
-    setupCSG() {
-        var cube = CSG.cube();
-        var sphere = CSG.sphere({ radius: 1.3 });
-        var polygons = cube.subtract(sphere).toPolygons();
+    addTextObject(text) {
+        const p = this.randomPlanePosition()
+        let label = Label.clone().setText(text)
+        label.object().position.x = p.x
+        label.object().position.z = p.z
+        this.addObject(label)
+        return label
+    }
+
+    setupOjects() {
+        const mutant = Mutant.clone()
+        mutant.object().position.z = -100000
+        mutant.object().position.y = 500
+        this.addObject(mutant)
+
+        
+        this.addTextObject("DONT BLINK")
+        this.addTextObject("OR")
+        const label = this.addTextObject("YOULL DIE").object()
+        label._shouldVibrateColor = true
+        label._shouldVibrateScale = true
+        
+        /*
+        this.addTextObject("DONT")
+        this.addTextObject("BLINK")
+        this.addTextObject("YOULL")
+        this.addTextObject("DIE")
+        */
+
 
         /*
-        var a = CSG.cube({ center: [-0.25, -0.25, -0.25] });
-        var b = CSG.sphere({ radius: 1.3, center: [0.25, 0.25, 0.25] });
-
-        // ----------------
-
-        var a = CSG.cube();
-        var b = CSG.sphere({ radius: 1.35, stacks: 12 });
-        var c = CSG.cylinder({ radius: 0.7, start: [-1, 0, 0], end: [1, 0, 0] });
-        var d = CSG.cylinder({ radius: 0.7, start: [0, -1, 0], end: [0, 1, 0] });
-        var e = CSG.cylinder({ radius: 0.7, start: [0, 0, -1], end: [0, 0, 1] });
+        const solid = PlatonicSolid.clone().pickNumber()
+        solid.object().position.z = -200000
+        this.addObject(solid)
         */
+
     }
 
-    /*
-    setupSpotLight() {
-        this.setSpotlight(this.newSpotlight())
-        this.scene().add(this.spotlight());    
-        this.spotlight().target = this.mainObject()
+    addObject(obj) {
+        this.objects().push(obj)
+        this.scene().add(obj.object())
     }
-    */
+
+    removeObject(obj) {
+        this.objects().remove(obj)
+        this.scene().remove(obj.object())
+    }
 
     setupRendererOptions() {
         this.renderer().setSize( window.innerWidth, window.innerHeight );
@@ -235,7 +346,7 @@ class App extends BaseObject {
         this.setRenderer(renderer);
         document.body.appendChild( renderer.domElement );
         this.setContainer(renderer.domElement)
-        this.container().style.filter = "url(#glow);"
+        //this.container().style.filter = "url(#glow);"
     }
 
     setupCanvasRenderer() {
@@ -258,31 +369,46 @@ class App extends BaseObject {
     }
 
     // ------------------------------------------
-
     
     updateCameraForTargetPosition() {
         const cam = this.camera()
 
         if (cam.targetObject) {
-            cam.targetPosition = cam.targetObject.position
-
-            const diff = cam.targetPosition.clone().add(cam.position.clone().negate())
+            const tp = cam.targetObject.position;
+            const diff = tp.clone().add(cam.position.clone().negate())
             const d = diff.length()
-            const td = cam.targetDistance
-            const f = (d-td)/d
 
-            const r = 0.085
-            cam.position.x += f * diff.x * r;
-            cam.position.y += f * diff.y * r;
-            cam.position.z += f * diff.z * r;
+            if (this.shouldOrbit()) {
+                const dx = diff.x;
+                const dz = diff.z;
+                const d = Math.sqrt((dx*dx) + (dz*dz));
+                let angle = Math.atan2(dz, dx);
+                angle += 0.01 + Math.PI;
+                cam.position.x = tp.x + d * Math.cos(angle);
+                cam.position.z = tp.z + d * Math.sin(angle);
+            } 
+            
+            if (d > cam.targetDistance * 1.1) {
+                const td = cam.targetDistance;
+                const f = (d - td) / d;
+                const r = 0.085;
+                cam.position.x += f * diff.x * r;
+                cam.position.y += f * diff.y * r;
+                cam.position.z += f * diff.z * r;
+            } 
 
-            cam.lookAt(cam.targetPosition)
+            /*
+            if (d < cam.targetDistance ) {
+                const td = cam.targetDistance;
+                const f = (d - td) / d;
+                const r = 1;
+                cam.position.x -= f * diff.x * r;
+                cam.position.y -= f * diff.y * r;
+                cam.position.z -= f * diff.z * r;
+            } 
+            */
 
-            //console.log("diff.length = ", diff.length)
-            if (diff.length() < cam.targetDistance*1.1) {
-                //this.chooseCameraTargetPosition()
-                cam.targetObject = null
-            }
+            cam.lookAt(tp)
         }
     }
 
@@ -316,8 +442,11 @@ class App extends BaseObject {
 
         this.updateKeyActions()
         this.updateCamera()
-        this.grid().update()
+        //this.grid().update()
+        this.tunnelGrid().update()
         this.floorGrid().update()
+
+        this.objects().forEach((obj) => { obj.update() })
 
         this.renderer().render(this.scene(), this.camera());
 

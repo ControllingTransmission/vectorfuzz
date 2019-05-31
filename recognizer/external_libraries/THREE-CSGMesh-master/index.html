@@ -1,0 +1,136 @@
+<html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<style>
+    body {
+        margin: 0px;
+        border: none;
+        height: 100%;
+        overflow: hidden;
+        font-family: Futura, "Trebuchet MS", Arial, sans-serif;
+        font-size: 24px;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: 700;
+        line-height: 26.4px;
+    }
+</style>
+<head>
+</head>
+<body>
+    <div id='container' style='width:100%;height:100%;'></div>
+</body>
+<script src="https://cdn.rawgit.com/mrdoob/three.js/master/build/three.js"></script>
+<script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/controls/OrbitControls.js"></script>
+
+<!--
+<script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/renderers/CSS3DRenderer.js"></script>
+-->
+
+<script type="module">
+    import CSG from "./CSGMesh.js"
+
+    THREE.Object3D.prototype.asEdgesObject = function(color, thickness, opacity) {   
+        const newMat = new THREE.LineBasicMaterial({
+            color: color, 
+            linewidth: thickness,
+            fog: true,
+            transparent: opacity != 1,
+            opacity: opacity,
+            linecap: "round",
+            linejoin: "round",
+        });
+
+        const group = new THREE.Object3D()
+
+        this.traverse(function(node) { 
+            if (node instanceof THREE.Mesh) { 
+                const edges = new THREE.EdgesGeometry( node.geometry );
+                const line = new THREE.LineSegments( edges, newMat );
+                group.add(line)
+            }
+        })
+
+        return group
+    }
+
+
+    let renderer = new THREE.WebGLRenderer()
+    let domElement = renderer.domElement;
+    container.appendChild(domElement)
+    let scene = new THREE.Scene();
+    let camera = new THREE.PerspectiveCamera();
+    camera.position.set(10,10,10)
+    let controls = new THREE.OrbitControls(camera,container)
+
+    const mkMat=(color) =>  new THREE.LineBasicMaterial( { color: color, opacity: 1, linewidth: 8 } );
+
+    let box    = new THREE.Mesh(new THREE.BoxGeometry(7, 7, 7),mkMat(0x0000FF))
+    let sphere = new THREE.Mesh(new THREE.BoxGeometry(7, 7, 7),mkMat(0x0000FF))
+
+
+    function doCSG(a,b,op,mat){
+        var bspA = CSG.fromMesh( a );
+        var bspB = CSG.fromMesh( b );
+        var bspC = bspA[op]( bspB );
+        var result = CSG.toMesh( bspC, a.matrix );
+        result.material = mat;
+        result.castShadow  = result.receiveShadow = true;
+        return result;
+    }
+    
+    let r = null
+    let rOutline = null
+
+    function recompute() {
+
+        if (r) {
+           // r.parent.remove(r)
+            r.geometry.dispose();
+        }
+
+        if (rOutline) {
+            scene.remove(rOutline)
+        }
+
+        box.updateMatrix();
+        sphere.updateMatrix();
+
+        r = doCSG(box, sphere,'subtract', null)
+        /*
+        results.push(doCSG(box,sphere,'intersect',intersectMaterial))
+        results.push(doCSG(box,sphere,'union',unionMaterial))
+
+        results.push(doCSG(sphere,box,'subtract',subMaterial))
+        results.push(doCSG(sphere,box,'intersect',intersectMaterial))
+        results.push(doCSG(sphere,box,'union',unionMaterial))
+        */
+        rOutline = r.asEdgesObject(0xff0000, 5, 1)
+        rOutline.position.copy(r.position)
+        scene.add(rOutline)
+        //scene.add(r)
+
+        //r.position.z += -5 //+ ((i%3)*5)
+        //r.position.x += -5 //+ (((i/3)|0)*10)
+    }
+
+    function animate(time){
+        if((domElement.prevWidth!=container.clientWidth)||(domElement.prevHeight!=container.clientHeight)){
+            domElement.prevWidth=container.clientWidth;
+            domElement.prevHeight=container.clientHeight;
+            renderer.setSize(container.clientWidth,container.clientHeight)
+            camera.aspect=container.clientWidth/container.clientHeight;
+            camera.updateProjectionMatrix();
+        }
+        //sphere.position.x=Math.sin(time*0.001)*2;
+        //sphere.position.z=Math.cos(time*0.0011)*0.5;
+        //sphere.position.t=Math.sin(time*-0.0012)*0.5;
+        let s = 1 + Math.sin(time*-0.0012)*0.5
+        //sphere.scale.set(1, s, s)
+        sphere.rotation.y += 0.01
+        sphere.rotation.z += 0.01
+        renderer.render(scene,camera)
+        recompute();
+    }
+    renderer.setAnimationLoop(animate) 
+</script>

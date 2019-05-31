@@ -137,6 +137,12 @@ class Grid extends BaseObject {
         return objs
     }
 
+    clear() {
+        this.chunksArray().forEach((chunk) => {
+            this.removeChunk(chunk)
+        })
+    }
+
 }
 
 window.Grid = Grid

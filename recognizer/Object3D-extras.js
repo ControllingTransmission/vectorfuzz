@@ -555,6 +555,12 @@ THREE.Object3D.prototype.update = function() {
     }
 }
 
+THREE.Object3D.prototype.removeChildren = function() {
+    const children = this.children.slice();
+    children.forEach((child) => { this.remove(child) })
+    return this
+}
+
 
 THREE.Object3D.prototype.vibrateColor = function() {
     this.recursiveSetColor(new THREE.Color().pickRainbowColor())
@@ -562,7 +568,11 @@ THREE.Object3D.prototype.vibrateColor = function() {
 
 THREE.Object3D.prototype.vibrateLineWidth = function() {
     const t = this.time() + this.id;
-    const w = Math.floor(2 +(1+Math.cos(t/200))*3)
+    const min = 3
+    const max = 20
+    const v = (Math.cos(t/200) + 1)/2
+    const w = Math.floor(v*(max - min) + min)
+    //console.log("w:", w)
     this.recursiveSetLineWidth(w)
 }
 

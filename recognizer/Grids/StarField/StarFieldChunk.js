@@ -6,7 +6,7 @@ class StarFieldChunk extends Chunk {
     init() {
         super.init()
         this.newSlot("starCount", 40)
-        this.setRange(20)
+        this.setRange(4)
     }
 
     randomPos() {
