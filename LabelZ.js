@@ -3,7 +3,6 @@
 
 import { BaseObject } from './BaseObject.js';
 import { App } from './App.js';
-import { ThreeBSP } from './external_libraries/ThreeCSG.js';
 
 class LabelZ extends BaseObject {
 

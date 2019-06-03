@@ -28,10 +28,16 @@ class TunnelChunk extends Chunk {
         const heightSegments = 1 //this.randomInt(1, 30)
         const openEnded = true
 
+        /*
+        // Tempest style
         let rr = Math.random()*.5 + .5
         if (rr > 0.8) { rr = 1 }
         const thetaLength = Math.PI * 2 * rr
         const thetaStart = -thetaLength/2 + Math.PI
+        */
+
+        const thetaLength = 2 * Math.PI
+        const thetaStart = 0
         
         const geometry = new THREE.CylinderGeometry( 
             topRadius, 

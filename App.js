@@ -5,7 +5,6 @@ import { BaseObject } from './BaseObject.js';
 import defaultExport0 from './models/_Imports.js';
 import defaultExport1 from './grids/_Imports.js';
 import defaultExport2 from './fonts/_Imports.js'
-import { ThreeBSP } from './external_libraries/ThreeCSG.js'
 import CSG from './external_libraries/THREE-CSGMesh-master/CSGMesh.js'
 import { Mutant } from './Mutant.js'
 import { Label } from './Label.js'
