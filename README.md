@@ -1,6 +1,27 @@
 # vectorfuzz
 Glowing vector display like lines using three.js SVGRenderer.
 
+## 🌐 Live Demo
+Experience the application: **[https://controllingtransmission.github.io/vectorfuzz/](https://controllingtransmission.github.io/vectorfuzz/)**
+
+## About
+This project creates a glowing vector display using Three.js SVGRenderer, featuring wireframe geometries with custom glow effects. The application renders 3D objects as glowing line art that resembles classic vector graphics displays.
+
+## Running Locally
+To run the application locally:
+
+1. Clone the repository
+2. Serve the files using any HTTP server:
+   ```bash
+   python3 -m http.server 8000
+   ```
+   Or use the included HTTPS server:
+   ```bash
+   python simple-https-server.py
+   ```
+3. Open your browser to `http://localhost:8000` (or `https://localhost:4443` for HTTPS)
+
+## Technical Details
 
 NOTES
 
