@@ -21,6 +21,32 @@ To run the application locally:
    ```
 3. Open your browser to `http://localhost:8000` (or `https://localhost:4443` for HTTPS)
 
+## Keyboard Controls
+
+The application supports the following keyboard shortcuts:
+
+**Object Control:**
+- `O`: toggle automatic orbit around target object
+- `C`: toggle color vibration for target object
+- `X`: toggle scale vibration for target object
+- `V`: toggle line width vibration for target object
+- `M`: mutate target object (if it supports mutation)
+- `N`: toggle all vibrations (color, scale, line width) for target object
+
+**Camera Movement:**
+- `E`: move camera forward
+- `D`: move camera backward
+- `½`: set camera target distance close
+- `»`: set camera target distance far
+
+**Object Selection:**
+- `0-9`: select object by index as camera target
+
+**Scene Control:**
+- `J`: toggle tunnel grid view mode
+- `G`: disable all grids (star, floor, tunnel)
+- `H`: enable floor grid, disable others
+
 ## Technical Details
 
 NOTES
